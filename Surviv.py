@@ -1,3 +1,6 @@
+from abc import ABC, abstractmethod
+import pygame as pg
+
 class World:
     static_objects = []
     dinamic_objects = []
@@ -17,15 +20,27 @@ class World:
     static_objects.extend([boxes, trees, stones])
 
 
-class Object:
+class Actor(ABC):
+
+    @abstractmethod
     def __init__(self):
-        self.x = 0
-        self.y = 0
-        self.vx = 0
-        self.vy = 0
+        pass
+
+    @abstractmethod
+    def draw(self):
+        pass
+
+    @abstractmethod
+    def delete(self):
+        pass
+
+    @abstractmethod
+    def move_land(self):
+        pass
 
 
-class La
+class DinamicObject(Actor):
+
 
 
 
