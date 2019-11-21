@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import pygame as pg
+import Vector
 
 class World:
     static_objects = []
@@ -20,14 +21,10 @@ class World:
     static_objects.extend([boxes, trees, stones])
 
 
-class Actor(ABC):
+class DinamicObject(ABC):
 
     @abstractmethod
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def draw(self):
+    def move_land(self):
         pass
 
     @abstractmethod
@@ -35,11 +32,45 @@ class Actor(ABC):
         pass
 
     @abstractmethod
-    def move_land(self):
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def delete(self):
+        pass
+
+    @abstractmethod
+    def draw(self):
         pass
 
 
-class DinamicObject(Actor):
+class Heroes(DinamicObject):
+    def move_land(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def __init__(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def draw(self):
+        pass
+
+class Player(Heroes):
+
+class Bots(Heroes):
+
+
+def new_game():
+    W = 800
+    H = 600
+    pygame.init()
+    pygame.display.set_mode((W, H))
+
 
 
 
