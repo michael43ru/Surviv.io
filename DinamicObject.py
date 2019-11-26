@@ -1,5 +1,7 @@
 from Vector import *
+from GeometricObject import *
 from pygame.rect import Rect
+import math as m
 from abc import ABC, abstractmethod
 
 
@@ -29,11 +31,12 @@ class DinamicObject(ABC):
 class Heroes(DinamicObject):
 
     def __init__(self, x, y, r, speed, color):
-        super().__init__(x, y, 1.1 * r, speed, color)
-        self.target_vector = None
+        super().__init__(x, y, r, speed, color)
+        self.target_vector = Vector(0, 0) #нулевой вектор обозначает отсутствие цели
         self.live = True
         self.hands = []
         self.exist_hands = False
+        self.exist_target = False
         #self.hands = self.get_hands(target_vector, self.x, self.y, self.r)
 
     def move(self):
@@ -43,31 +46,53 @@ class Heroes(DinamicObject):
         #зачем int()
         pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), int(self.r))
         #голубым цветом откладывает вектор скорости от центра
-        if not self.speed.null_vector():
+        if not self.speed.is_null_vector():
             self.speed.draw(surface, (0, 70, 225), self.x, self.y)
-
         if self.exist_hands:
-            self.draw_hands(surface, self.hands)
+            self.draw_hands(surface)
 
     def hands_hit(self):
         pass
 
-    def get_hands(self, target_vector, x, y, r):
+    def get_hands(self):
+        k = 0.25
+        self.exist_hands = True
+        if self.target_vector.is_null_vector():
 
-        #геометрия
-        return hands
+            hand1 = Ball(self.target_vector.turn(30).x + self.x,
+                         self.target_vector.turn(30).y + self.y, k*self.r)
+            hand2 = Ball(self.target_vector.turn(-30).x + self.x,
+                         self.target_vector.turn(-30).y + self.y, k*self.r)
+        else:
+            hand1 = Ball(self.target_vector.turn(30).x + self.x,
+                         self.target_vector.turn(30).y + self.y, k*self.r)
+            hand2 = Ball(self.target_vector.turn(-30).x + self.x,
+                         self.target_vector.turn(-30).y + self.y, k*self.r)
+        self.hands.append(hand1)
+        self.hands.append(hand2)
+        return self.hands
 
-    def draw_hands(self, surface, hands):
-        for hand in hands:
-            pygame.draw.circle(surface, self.color, (hand.x, hand.y), hand.r)
+    def draw_hands(self, surface):
+        for hand in self.hands:
+            print(self.x, int(hand.x))
+            pygame.draw.circle(surface, self.color, (int(hand.x), int(hand.y)), int(hand.r))
+            pygame.draw.circle(surface, (0, 0, 0), (int(hand.x), int(hand.y)), int(hand.r), int(0.15*hand.r))
 
-    def get_target(self, x, y):
-        target_vector = unit_vector(x - (self.x - self.r), y - (self.y - self.r))
-        return target_vector
+    def get_target_vector(self, x, y):
+        self.exist_target = True
+        self.target_vector = Vector(x - (self.x - self.r), y - (self.y - self.r)).normalized().mult_by_scalar(self.r)
 
-    def draw_target(self, target_vector, surface):
+    def draw_target_vector(self, surface):
         #черным цветом обозначен вектор цели
-        target_vector.draw(surface, (0, 0, 0), self.x, self.y)
+        self.target_vector.draw(surface, (0, 0, 0), self.x, self.y)
+
+    def delete_target(self):
+        self.exist_target = False
+        self.target_vector = Vector(0, 0)
+
+    def delete_hands(self):
+        self.exist_hands = False
+        self.hands = []
 
 
 class Player(Heroes):

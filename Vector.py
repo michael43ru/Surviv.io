@@ -1,4 +1,5 @@
 import pygame
+import math
 
 
 class Vector:
@@ -29,7 +30,7 @@ class Vector:
 
     def __abs__(self):
         if self.x != 0 and self.y != 0:
-            return m.sqrt(self.x ** 2 + self.y ** 2)
+            return math.sqrt(self.x ** 2 + self.y ** 2)
         else:
             print("У вас нулевой вектор!")
 
@@ -43,16 +44,21 @@ class Vector:
         #откладывает вектор (255, 255, 255) цвета от точки (x, y)
         pygame.draw.aaline(surface, color, [x, y], [x + self.x, y + self.y])
 
-    def unit_vector(self, x, y):
-        #единичный вектор
-        unit = 10 # единица
-        v = Vector(x, y)
-        v = v.mult_by_scalar(1 / v.__abs__())
-        v.mult_by_scalar(unit)
-        return v
+    def normalized(self):
+        #нормировка(приведение к единичному модулю)
+        return self.mult_by_scalar(1 / self.__abs__())
 
-    def null_vector(self):
+    def is_null_vector(self):
         if self.x == 0 and self.y == 0:
             return True
         else:
             return False
+
+    def turn(self, degree):
+        #поворот против часовой стрелки
+        radian = degree * math.pi / 180
+        x1 = self.x*math.cos(radian) - self.y*math.sin(radian)
+        y1 = self.x*math.sin(radian) + self.y*math.cos(radian)
+        return Vector(x1, y1)
+
+
