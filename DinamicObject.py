@@ -2,6 +2,7 @@ from Vector import *
 from pygame.rect import Rect
 from abc import ABC, abstractmethod
 
+
 class DinamicObject(ABC):
 
     @abstractmethod
@@ -18,7 +19,7 @@ class DinamicObject(ABC):
     def move(self):
         self.x += self.speed.x
         self.y += self.speed.y
-        self.bounds += self.bounds.move(self.speed.x, self.speed.y)
+        self.bounds = self.bounds.move(self.speed.x, self.speed.y)
 
     @abstractmethod
     def draw(self):
@@ -31,25 +32,28 @@ class Heroes(DinamicObject):
         super().__init__(x, y, 1.1 * r, speed, color)
         self.target_vector = None
         self.live = True
-        self.hands = self.get_hands(target_vector, self.x, self.y, self.r)
+        self.hands = []
+        self.exist_hands = False
+        #self.hands = self.get_hands(target_vector, self.x, self.y, self.r)
 
-    def move(self, surface, event):
-        print("Я двигаюсь!!")
+    def move(self):
+        super().move()
 
     def draw(self, surface):
-        print(type(self.x))
-        pygame.draw.circle(surface, self.color, (self.x, self.y), self.r)
+        #зачем int()
+        pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), int(self.r))
         #голубым цветом откладывает вектор скорости от центра
         if not self.speed.null_vector():
             self.speed.draw(surface, (0, 70, 225), self.x, self.y)
 
-        self.draw_hands(surface, self.hands)
+        if self.exist_hands:
+            self.draw_hands(surface, self.hands)
 
     def hands_hit(self):
         pass
 
     def get_hands(self, target_vector, x, y, r):
-        hands = []
+
         #геометрия
         return hands
 
