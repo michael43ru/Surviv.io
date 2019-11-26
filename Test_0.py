@@ -358,20 +358,24 @@ while running:
         if event.type == pg.KEYDOWN:
             key = event.key
             if key == pg.K_a:
-                player.speed.x = -8
+                player.speed.x -= 8
             if key == pg.K_d:
-                player.speed.x = 8
+                player.speed.x += 8
             if key == pg.K_w:
-                player.speed.y = -8
+                player.speed.y -= 8
             if key == pg.K_s:
-                player.speed.y = 8
+                player.speed.y += 8
                 
         if event.type == pg.KEYUP:
             key = event.key
-            if key == pg.K_a or key == pg.K_d:
-                player.speed.x = 0
-            if key == pg.K_w or key == pg.K_s:
-                player.speed.y = 0
+            if key == pg.K_a:
+                player.speed.x += 8
+            if key == pg.K_d:
+                player.speed.x -= 8
+            if key == pg.K_w:
+                player.speed.y += 8
+            if key == pg.K_s:
+                player.speed.y -= 8
 
     (x, y) = pg.mouse.get_pos()
 
