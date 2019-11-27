@@ -1,4 +1,4 @@
-import pygame as pg
+import pygame
 
 import random
 
@@ -141,14 +141,14 @@ class Heroes(DinamicObject):
         if self.target_vector.is_null_vector():
 
             hand1 = Ball(self.target_vector.turn(30).x + self.x,
-                         self.target_vector.turn(30).y + self.y, k*self.r)
+                         self.target_vector.turn(30).y + self.y, k * self.r)
             hand2 = Ball(self.target_vector.turn(-30).x + self.x,
-                         self.target_vector.turn(-30).y + self.y, k*self.r)
+                         self.target_vector.turn(-30).y + self.y, k * self.r)
         else:
             hand1 = Ball(self.target_vector.turn(30).x + self.x,
-                         self.target_vector.turn(30).y + self.y, k*self.r)
+                         self.target_vector.turn(30).y + self.y, k * self.r)
             hand2 = Ball(self.target_vector.turn(-30).x + self.x,
-                         self.target_vector.turn(-30).y + self.y, k*self.r)
+                         self.target_vector.turn(-30).y + self.y, k * self.r)
         self.hands.append(hand1)
         self.hands.append(hand2)
         return self.hands
@@ -156,7 +156,7 @@ class Heroes(DinamicObject):
     def draw_hands(self, surface):
         
         for hand in self.hands:
-            print(self.x, int(hand.x))
+            # print(self.x, int(hand.x))
             pygame.draw.circle(surface, self.color, (int(hand.x), int(hand.y)), int(hand.r))
             pygame.draw.circle(surface, (0, 0, 0), (int(hand.x), int(hand.y)), int(hand.r), int(0.15*hand.r))
 
@@ -281,6 +281,23 @@ class Red_zone:
     def reduction(self): # Не доделано
         self.R -= self.v
 
+
+class Map:
+
+    def __init__(self, x, y, dx, dy, color):
+        self.x = x
+        self.y = y
+        self.width = dx
+        self.height = dy
+        self.color = color
+        
+    def draw(self):
+        self.id = pygame.draw.polygon(screen, self.color, ((self.x + width / 2, self.y + height / 2),
+                                                           (self.x + self.width + width / 2, self.y + height / 2),
+                                                           (self.x + self.width + width / 2, self.y + self.height + height / 2),
+                                                           (self.x  + width / 2, self.y + self.height + height / 2)))
+
+
 # class World:
      
 static_objects = []
@@ -318,29 +335,37 @@ color_water = [70, 120, 255]
 
 # Создаем игру и окно
 
-pg.init()
-pg.mixer.init() # Звук
-screen = pg.display.set_mode((width, height))
-pg.display.set_caption("My Game")
-clock = pg.time.Clock()
+pygame.init()
+pygame.mixer.init() # Звук
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("My Game")
+clock = pygame.time.Clock()
 
-s = 10000 # сторона карты
+s = 1000 # сторона карты
 
 '''img_dir = path.join(path.dirname(__file__), 'img')
 red_zone_img = pg.image.load(path.join(img_dir, "Red_zone.png")).convert()'''
 
 v = Vector(0, 0)
-player = Player(0, 0, 0, v, (0, 0, 0))
+player = Player(width / 2, height / 2, 20, v, (0, 0, 0)) # здесь координаты игрока на экране
+player.get_target_vector(0, -1)
+player.get_hands()
+center_x = rnd(0.01 * s, 0.99 * s) # координаты игрока в мире
+center_y = rnd(0.01 * s, 0.99 * s)
 
 screen.fill(color_water)
-water = pg.draw.polygon(screen, color_water, ((-player.x + width / 2, -player.y + height / 2),
-                                              (-player.x + s + width / 2, -player.y + height / 2),
-                                              (-player.x + s + width / 2, -player.y + s + height / 2),
-                                              (-player.x - width / 2, -player.y + s - height / 2)))
-grass = pg.draw.polygon(screen, color_grass, ((0.01 * s - player.x + width / 2, 0.01 * s - player.y + height / 2),
-                                              (0.99 * s - player.x + width / 2, 0.01 * s - player.y + height / 2),
-                                              (0.99 * s - player.x + width / 2, 0.99 * s - player.y + height / 2),
-                                              (0.01 * s - player.x + width / 2, 0.99 * s - player.y + height / 2)))
+
+'''water = pygame.draw.polygon(screen, color_water, ((width / 2, height / 2),
+                                                  (s + width / 2, height / 2),
+                                                  (s + width / 2, s + height / 2),
+                                                  (width / 2, s - height / 2)))'''
+
+'''grass = pygame.draw.polygon(screen, color_grass, ((0.02 * s  + width / 2 - center_x, 0.02 * s + height / 2 - center_y),
+                                                  (0.98 * s + width / 2 - center_x, 0.02 * s + height / 2 - center_y),
+                                                  (0.98 * s + width / 2 - center_x, 0.98 * s + height / 2 - center_y),
+                                                  (0.02 * s + width / 2 - center_x, 0.98 * s + height / 2 - center_y)))'''
+
+grass = Map(0.02 * s - center_x, 0.02 * s - center_y, 0.96 * s, 0.96 * s, color_grass)
 
 # Цикл игры
 
@@ -351,33 +376,36 @@ while running:
     
     clock.tick(fps)
     
-    for event in pg.event.get():
+    for event in pygame.event.get():
         # check for closing window
-        if event.type == pg.QUIT:
+        if event.type == pygame.QUIT:
             running = False
-        if event.type == pg.KEYDOWN:
+        if event.type == pygame.KEYDOWN:
             key = event.key
-            if key == pg.K_a:
+            if key == pygame.K_a:
                 player.speed.x -= 8
-            if key == pg.K_d:
+            if key == pygame.K_d:
                 player.speed.x += 8
-            if key == pg.K_w:
+            if key == pygame.K_w:
                 player.speed.y -= 8
-            if key == pg.K_s:
+            if key == pygame.K_s:
                 player.speed.y += 8
                 
-        if event.type == pg.KEYUP:
+        if event.type == pygame.KEYUP:
             key = event.key
-            if key == pg.K_a:
+            if key == pygame.K_a:
                 player.speed.x += 8
-            if key == pg.K_d:
+            if key == pygame.K_d:
                 player.speed.x -= 8
-            if key == pg.K_w:
+            if key == pygame.K_w:
                 player.speed.y += 8
-            if key == pg.K_s:
+            if key == pygame.K_s:
                 player.speed.y -= 8
 
-    (x, y) = pg.mouse.get_pos()
+    (x, y) = pygame.mouse.get_pos()
+    player.get_target_vector(x, y)
+    player.delete_hands()
+    player.get_hands()
 
     for a in static_objects:
         for b in a:
@@ -387,17 +415,24 @@ while running:
         for b in a:
             b.x -= player.speed.x
             b.y -= player.speed.y
-    water.x -= player.speed.x
-    water.y -= player.speed.y
+    # water.x -= player.speed.x
+    # water.y -= player.speed.y
     grass.x -= player.speed.x
     grass.y -= player.speed.y
+    center_x += player.speed.x
+    center_y += player.speed.y
 
-    water = pg.draw.polygon(screen, color_water, ((water.x, water.y), (water.x + s, water.y),
-                                                  (water.x + s, water.y + s), (water.x, water.y + s)))
-    grass = pg.draw.polygon(screen, color_grass, ((grass.x, grass.y),
-                                                  (0.98 * s + grass.x, grass.y),
-                                                  (0.98 * s + grass.x, 0.98 * s + grass.y),
-                                                  (grass.x, 0.98 * s + grass.y)))
-    pg.display.flip()
+    '''water = pygame.draw.polygon(screen, color_water, ((water.x, water.y), (water.x + s, water.y),
+                                                      (water.x + s, water.y + s), (water.x, water.y + s)))'''
+    screen.fill(color_water)
+    '''grass = pygame.draw.polygon(screen, color_grass, ((grass.x, grass.y),
+                                                      (0.98 * s + grass.x, grass.y),
+                                                      (0.98 * s + grass.x, 0.98 * s + grass.y),
+                                                      (grass.x, 0.98 * s + grass.y)))'''
+    grass.draw()
+    
+    player.draw(screen)
 
-pg.quit()
+    pygame.display.flip()
+
+pygame.quit()
