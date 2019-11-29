@@ -4,7 +4,7 @@ import pygame
 from StaticObject import *
 from RedZone import *
 from Map import *
-
+from random import randrange as rnd, choice
 
 static_objects = []
 dinamic_objects = []
@@ -135,7 +135,7 @@ while running:
                                                       (0.98 * s + grass.x, grass.y),
                                                       (0.98 * s + grass.x, 0.98 * s + grass.y),
                                                       (grass.x, 0.98 * s + grass.y)))'''
-    grass.draw()
+    grass.draw(screen)
 
     player.draw(screen)
 

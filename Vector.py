@@ -34,11 +34,8 @@ class Vector:
         else:
             print("У вас нулевой вектор!")
 
-    def proection(self, other):
-        try:
-            return other.lambdamultiplication(other.__mul__(self) / (other.__abs__() ** 2))
-        except ZeroError as e:
-            print("Кажется, у вас есть нулевой вектор!")
+    def projection(self, other):
+        return other.mult_by_scalar(other.__mul__(self) / (other.__abs__() ** 2))
 
     def draw(self, surface, color, x, y):
         #откладывает вектор (255, 255, 255) цвета от точки (x, y)
