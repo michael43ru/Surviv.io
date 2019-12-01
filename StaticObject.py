@@ -3,7 +3,7 @@ import math
 from pygame.rect import Rect
 
 
-class StaticObject: # лучше вместо create везде прописать draw, чтобы больше по смыслу подходило
+class Staticobjects(): # лучше вместо create везде прописать draw, чтобы больше по смыслу подходило
     def __init__(self, x, y, r, number_of_type, color):
         self.x = x
         self.y = y
@@ -77,28 +77,66 @@ class StaticObject: # лучше вместо create везде прописат
                     self.r -= 0.5 # на сколько уменьшается радикс за один щелчкек
                 else:
                     if self.type == 2:
-                        return 1 # это значит надо примемить функцию присвоения предмета, объект уничтожить
+                        return 2 # это значит надо примемить функцию присвоения предмета, объект уничтожить
                     else:
-                        return 2 # просто уничтожить объект
+                        return 1 # просто уничтожить объект
 
 
 class Tree(Staticobjects):
     def __init__(self, x, y, r, number_of_type, color, r_interior=5):
         Staticobjects.__init__(self, x, y, r, number_of_type, color)
         self.r_interior = r_interior # радиус ствола
+        self.tree_surf = pygame.image.load() # здесь ссылка на файл с кустом
+        self.tree_rect = self.tree_surf.get_rect(bottomright=((self.x + self.r), (self.y + self.r)))
 
-    def create_tree(self): # создание дерева или куста, для каждого объекта будет отдельная функция создания
+    def create_tree(self, sc): # создание дерева или куста, для каждого объекта будет отдельная функция создания
         pygame.draw.circle(sc, (255, 255, 255), [self.x, self.y], self.r_interior) # рисует ствол
-        pygame.draw.circle(sc, (0, 128, 0), [self.x, self.y], self.r)
+        sc.blit(self.tree_surf, self.tree_rect)
+
+    def collision_with_fighter(self, obj, event): # применять в том случае, когда angle != 100
+        pygame.event.get()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if math.hypot((pygame.mouse.get_pos()[0] - self.x), (pygame.mouse.get_pos()[1] - self.y)) <= self.r:
+                if self.r >= 0.6:
+                    self.r *= 0.8 # на сколько уменьшается радикс за один щелчкек
+                    self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.8), (self.r * 0.8))
+                else:
+                    return 0 # это значит что надо перестать рисовать дерево
 
 
 class Box(Staticobjects):
     def __init__(self, x, y, r, number_of_type, color, interior_stuff):
         Staticobjects.__init__(self, x, y, r, number_of_type, color)
         self.interior_stuff = interior_stuff
+        self.box_surf = pygame.image.load() # здесь ссылка на файл с ящиком
+        self.box_rect = self.box_surf.get_rect(bottomright=((self.x + self.r), (self.y + self.r)))
 
-    def create_box(self):
-        pygame.draw.rect(sc, (255, 255, 255), (self.x - self.r, self.y - self.r, self.r, self.r))
+    def create_box(self, sc):
+        sc.blit(self.box_surf, self.box_rect)
+
+    def collision_with_fighter(self, obj, event): # применять в том случае, когда angle != 100
+        pygame.event.get()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if math.hypot((pygame.mouse.get_pos()[0] - self.x - 0.5 * self.r), (pygame.mouse.get_pos()[1] - self.y - 0.5 * self.r)) <= self.r:
+                if self.r >= 0.6:
+                    self.r *= 0.8 # на сколько уменьшается радикс за один щелчкек
+                    self.box_surf = pygame.transform.scale(self.box_surf, (self.r * 0.8), (self.r * 0.8))
+                else:
+                    return 0 # это значит что надо перестать рисовать ящик, и вызвать функцию create_stuff, при этом открыть игроку возможность брать предметы
+
+    def create_stuff(self, interior_stuff):
+        if interior_stuff == 1:
+            pass
+        if interior_stuff == 2:
+            pass
+        if interior_stuff == 3:
+            pass
+
+    def get_stuff(obj, event):
+        pygame.event.get()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pass
+
 
     def open_box(self): # при открытии ящика уничтожить его, человеку присвоить предмет
         pass
@@ -108,5 +146,6 @@ class Stone(Staticobjects):
     def __init__(self, x, y, r, number_of_type, color, r_interior=5):
         Staticobjects.__init__(self, x, y, r, number_of_type, color)
 
-    def create_box(self, surface):
-        pygame.draw.rect(surface, (0, 0, 0), (self.x - self.r, self.y - self.r, self.r, self.r))
+    def create_stone(self, sc):
+        pygame.draw.circle(sc, (0, 0, 0), [self.x, self.y], self.r)
+
