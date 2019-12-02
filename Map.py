@@ -1,3 +1,6 @@
+import pygame
+
+
 class Map:
 
     def __init__(self, x, y, dx, dy, color):
@@ -7,8 +10,8 @@ class Map:
         self.height = dy
         self.color = color
 
-    def draw(self):
-        self.id = pygame.draw.polygon(screen, self.color, ((self.x + width / 2, self.y + height / 2),
-                                                           (self.x + self.width + width / 2, self.y + height / 2),
-                                                           (self.x + self.width + width / 2, self.y + self.height + height / 2),
-                                                           (self.x  + width / 2, self.y + self.height + height / 2)))
+    def draw(self, screen):
+        self.id = pygame.draw.polygon(screen, self.color, ((self.x, self.y),
+                                                           (self.x + self.width, self.y),
+                                                           (self.x + self.width, self.y + self.height),
+                                                           (self.x, self.y + self.height)))
