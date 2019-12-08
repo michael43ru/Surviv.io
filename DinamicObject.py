@@ -1,5 +1,6 @@
 from Vector import *
 from GeometricObject import *
+from Bag import *
 from pygame.rect import Rect
 import math as m
 from abc import ABC, abstractmethod
@@ -16,6 +17,7 @@ class DinamicObject(ABC):
         self.x = x + r / 2
         self.y = y + r / 2
         self.r = r
+        self.stop = None
 
     @abstractmethod
     def move(self):
@@ -34,7 +36,7 @@ class Bullet(DinamicObject):
         self.y = None
         self.live = True
         self.fire_flag = False
-        self.speed_step = 1.5
+        self.speed_step = 3
         self.r = 3
         self.hit_distance = 50
         self.color = (0, 0, 0)
@@ -50,6 +52,12 @@ class Bullet(DinamicObject):
             super().move()
 
     def is_collision(self, obj):
+        if (self.x - obj.x)^2 + (self.y - obj.y)^2 < (self.r + obj.r)^2:
+            return True
+        else:
+            return False
+
+    def start_fire(self, target_x, target_y, gun, player):
         pass
 
     def update_speed(self):
@@ -61,19 +69,94 @@ class Bullet(DinamicObject):
         if self.hit_distance <= 0:
             self.live = False
 
+        self.move()
+
 
 class SimpleShot(Bullet):
+    def __init__(self):
+        super().__init__()
+        self.type = "simple" #у каждого выстрела свой тип
+
     def draw(self, surface):
         if self.fire_flag and self.live:
             pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), int(self.r))
 
+    def start_fire(self, target_x, target_y, gun, player):
+        self.fire_flag = True
+        self.direction = Vector(target_x - player.x, target_y - player.y).normalized()
+        self.speed = self.direction.mult_by_scalar(self.speed_step)
+        self.x = gun.x_end
+        self.y = gun.y_end
+
 
 class TripleShot(Bullet):
-    pass
+    def __init__(self):
+        self.n = 3
+        self.array = []
+        self.type = "line"
+        for i in range(self.n):
+            self.array.append(SimpleShot())
+
+    def start_fire(self, target_x, target_y, gun, player):
+        self.fire_flag = True
+        self.direction = Vector(target_x - player.x, target_y - player.y).normalized()
+        for i in range(self.n):
+            self.array[i].fire_flag = True
+            self.array[i].direction = Vector(target_x - player.x, target_y - player.y).normalized()
+            self.array[i].speed = self.array[i].direction.mult_by_scalar(self.array[i].speed_step)
+            self.array[i].x = gun.x_end + 3*i*self.array[i].direction.x
+            self.array[i].y = gun.y_end + 3*i*self.array[i].direction.y
+
+    def is_collision(self, obj):
+        for i in range(self.n):
+            self.array[i].is_collision(obj)
+
+    def move(self):
+        for i in range(self.n):
+            self.array[i].move()
+
+    def draw(self, surface):
+        for i in range(self.n):
+            self.array[i].draw(surface)
+
+    def update_speed(self):
+        for i in range(self.n):
+            self.array[i].update_speed()
 
 
 class DivergentShot(Bullet):
-    pass
+    def __init__(self):
+        self.n = 3
+        self.array = []
+        self.type = "divergent"
+        for i in range(self.n):
+            self.array.append(SimpleShot())
+
+    def start_fire(self, target_x, target_y, gun, player):
+        self.fire_flag = True
+        self.direction = Vector(target_x - player.x, target_y - player.y).normalized()
+        for i in range(self.n):
+            self.array[i].fire_flag = True
+            self.array[i].direction = Vector(target_x - player.x, target_y - player.y).normalized().turn(-8*((self.n - 1) // 2) + 8*i)
+            self.array[i].speed = self.array[i].direction.mult_by_scalar(self.array[i].speed_step)
+            self.array[i].x = gun.x_end
+            self.array[i].y = gun.y_end
+
+    def is_collision(self, obj):
+        for i in range(self.n):
+            self.array[i].is_collision(obj)
+
+    def move(self):
+        for i in range(self.n):
+            self.array[i].move()
+
+    def draw(self, surface):
+        for i in range(self.n):
+            self.array[i].draw(surface)
+
+    def update_speed(self):
+        for i in range(self.n):
+            self.array[i].update_speed()
 
 
 class Heroes(DinamicObject):
@@ -136,7 +219,7 @@ class Heroes(DinamicObject):
 
     def draw_target_vector(self, surface):
         #черным цветом обозначен вектор цели
-        self.target_vector.draw(surface, (0, 0, 0), self.x, self.y)
+        self.target_vector.draw(surface, (800, 0, 0), self.x, self.y)
 
     def delete_target(self):
         self.exist_target = False
@@ -152,13 +235,14 @@ class Heroes(DinamicObject):
         self.get_target_vector(target_x, target_y)
         self.get_simple_hands()
 
+        self.move()
+
 
 class Player(Heroes):
     def __init__(self, x, y, r, speed, color):
         super().__init__(x, y, r, speed, color)
         self.gun_in_hands = False
-        standart_bag_size = 10 #стандартный размер рюкзака
-        self.bag_size = standart_bag_size
+        self.bag = StandartBag()
         self.gun = None
 
     def draw(self, surface):
@@ -166,6 +250,7 @@ class Player(Heroes):
         self.draw_hands(surface)
         if self.gun_in_hands:
             self.draw_gun(surface)
+        #self.bag.draw(surface, self)
 
     def get_simple_gun(self):
         if self.exist_target:
@@ -204,18 +289,18 @@ class Player(Heroes):
         else:
             self.get_simple_hands()
 
+        self.move()
+
     def update_bag(self):
         #FIXME: как реализовывать рюкзак и количество патронов
         pass
 
     def fire(self, target_x, target_y, bullet):
         # функция принимает на вход патрон и координаты точки, куда стрелять
-        bullet.fire_flag = True
-        bullet.direction = Vector(target_x - self.x, target_y - self.y).normalized()
-        bullet.speed = bullet.direction.mult_by_scalar(bullet.speed_step)
-        bullet.x = self.gun.x_end
-        bullet.y = self.gun.y_end
+        bullet.start_fire(target_x, target_y, self.gun, self)
 
 
 class Bots(Heroes):
-    pass
+    def draw(self, surface):
+        super().draw(surface)
+        self.draw_target_vector(surface)
