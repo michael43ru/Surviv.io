@@ -1,0 +1,44 @@
+class Box(Staticobjects):
+    def __init__(self, x, y, r, number_of_type, color, interior_stuff, state=1):
+        Staticobjects.__init__(self, x, y, r, number_of_type, color)
+        self.interior_stuff = interior_stuff
+        self.state = state
+        self.box_surf = pygame.image.load('box.png') # здесь ссылка на файл с ящиком
+        self.box_rect = self.box_surf.get_rect(bottomright=((self.x + self.r), (self.y + self.r)))
+        if self.interior_stuff == 1:
+            self.object_in_the_box =pygame.image.load('gun.png')
+            self.object_in_the_box_rect = self.object_in_the_box.get_rect(
+                bottomright=((self.x + self.r), (self.y + self.r)))
+        if self.interior_stuff == 2:
+            self.object_in_the_box = pygame.image.load('heart.png')
+            self.object_in_the_box_rect = self.object_in_the_box.get_rect(
+                bottomright=((self.x + self.r), (self.y + self.r)))
+        if self.interior_stuff == 3:
+            self.object_in_the_box = pygame.image.load()
+            self.object_in_the_box_rect = self.object_in_the_box.get_rect(
+                bottomright=((self.x + self.r), (self.y + self.r)))
+
+    def create_box(self, sc):
+        if self.state == 1:
+            sc.blit(self.box_surf, self.box_rect)
+        else:
+            sc.blit(self.object_in_the_box, self.object_in_the_box_rect)
+
+    def collision_with_fighter(self, event): # применять в том случае, когда angle != 100
+        pygame.event.get()
+        if event.type == pygame.MOUSEBUTTONDOWN and self.state == 1:
+            if math.hypot((pygame.mouse.get_pos()[0] - self.x - 0.5 * self.r),
+                          (pygame.mouse.get_pos()[1] - self.y - 0.5 * self.r)) <= self.r:
+                if self.r >= 0.6:
+                    self.r *= 0.8 # на сколько уменьшается радикс за один щелчкек
+                    self.box_surf = pygame.transform.scale(self.box_surf, (self.r * 0.8), (self.r * 0.8))
+                else:
+                    self.state = 0
+
+    def get_stuff(self, event):
+        pygame.event.get()
+        if event.type == pygame.MOUSEBUTTONDOWN and self.state == 0:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if math.hypot((pygame.mouse.get_pos()[0] - self.x - 0.5 * self.r),
+                              (pygame.mouse.get_pos()[1] - self.y - 0.5 * self.r)) <= self.r:
+                    return 0 # начать рисовать предмет на человеке
