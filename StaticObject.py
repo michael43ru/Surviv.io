@@ -10,69 +10,69 @@ class Staticobjects(): # лучше вместо create везде пропис�
         self.type = number_of_type # у каждого типа объекта будет свой номер
         self.color = color
 
-    def collision_with_gamer(self, obj): # при столкновении с игроком, не пропускать игрока, возвращать угол объекта относительно игрока
+    def collision_with_gamer(self, gamer): # при столкновении с игроком, не пропускать игрока, возвращать угол объекта относительно игрока
         if self.type == 1: # куст дерево или что то круглое
-            if math.hypot((obj.x - self.x), (obj.y - self.y)) <= (self.r + obj.r):
-                if self.x == obj.x:
-                    if obj.y < self.y:
+            if math.hypot((gamer.x - it.x), (gamer.y - it.y)) <= (it.r + gamer.r):
+                if it.x == gamer.x:
+                    if gamer.y < it.y:
                         return 0.5 * math.pi
                     else:
                         return -0.5 * math.pi
-                elif self.y == obj.y:
-                    if obj.x < self.x:
+                elif it.y == gamer.y:
+                    if gamer.x < it.x:
                         return 0
                     else:
                         return -math.pi
                 else:
-                    return math.atan((self.y - obj.y) / (self.x - obj.x))
+                    return math.atan((it.y - gamer.y) / (it.x - gamer.x))
             else:
                 return 100 # если выводиться 100 это значит что нет столкновения, для других чисел выводится значение угла
                            # поворота объекта относительно игрока
-        if self.type == 2: # ящик стена или что то прямоугольное
-            if obj.x >= self.x:
+        if self.type == 2: # ящик
+            if gamer.x >= self.x:
                 angle_90 = - 0.5 * math.pi
-            elif obj.x < self.x:
+            elif gamer.x < it.x:
                 angle_90 = 0.5 * math.pi
-            elif obj.y <= self.y:
+            elif gamer.y <= it.y:
                 angle_90 = 0
-            elif obj.y > self.y:
+            elif gamer.y > it.y:
                 angle_90 = - math.pi
-            if self.x == obj.x:
-                if obj.y <= self.y:
+            if it.x == gamer.x:
+                if gamer.y <= it.y:
                     angle = - 0.5 * math.pi
-                if obj.y > self.y:
+                if gamer.y > it.y:
                     angle = 0.5 * math.pi
             else:
-                angle = - math.atan((self.y + 0.5 * self.r - obj.y) / (self.x + 0.5 * self.r - obj.x))
-            if (self.x + self.r - obj.x - obj.r >= 0) and (self.x - obj.x - obj.r <= 0) and (
-                    self.y + self.r - obj.y >= 0) and (self.y - self.r - obj.y <= 0):
+                angle = - math.atan((self.y + 0.5 * self.r - gamer.y) / (self.x + 0.5 * self.r - gamer.x))
+            if (self.x + self.r - gamer.x - gamer.r >= 0) and (self.x - gamer.x - gamer.r <= 0) and (
+                    self.y + self.r - gamer.y >= 0) and (self.y - self.r - gamer.y <= 0):
                 return angle_90
-            elif (self.x + self.r - obj.x + obj.r >= 0) and (self.x - obj.x + obj.r <= 0) and (
-                    self.y + self.r - obj.y >= 0) and (self.y - self.r - obj.y <= 0):
+            elif (self.x + self.r - gamer.x + gamer.r >= 0) and (self.x - gamer.x + gamer.r <= 0) and (
+                    self.y + self.r - gamer.y >= 0) and (self.y - self.r - gamer.y <= 0):
                 return angle_90
-            elif (self.x + self.r - obj.x >= 0) and (self.x - obj.x <= 0) and (
-                    self.y + self.r - obj.y - obj.r >= 0) and (self.y - obj.y - obj.r <= 0):
+            elif (self.x + self.r - gamer.x >= 0) and (self.x - gamer.x <= 0) and (
+                    self.y + self.r - gamer.y - gamer.r >= 0) and (self.y - gamer.y - gamer.r <= 0):
                 return angle_90
-            elif (self.x + self.r - obj.x >= 0) and (self.x - obj.x <= 0) and (
-                    self.y + self.r - obj.y + obj.r >= 0) and (self.y - self.r - obj.y + obj.r <= 0):
+            elif (self.x + self.r - gamer.x >= 0) and (self.x - gamer.x <= 0) and (
+                    self.y + self.r - gamer.y + gamer.r >= 0) and (self.y - self.r - gamer.y + gamer.r <= 0):
                 return angle_90
-            elif math.hypot((self.x - obj.x), (self.y - obj.y)) <= obj.r:
+            elif math.hypot((self.x - gamer.x), (self.y - gamer.y)) <= gamer.r:
                 return angle
-            elif math.hypot((self.x + self.r - obj.x), (self.y - obj.y)) <= obj.r:
+            elif math.hypot((self.x + self.r - gamer.x), (self.y - gamer.y)) <= gamer.r:
                 return angle
-            elif math.hypot((self.x - obj.x), (self.y + self.r - obj.y)) <= obj.r:
+            elif math.hypot((self.x - gamer.x), (self.y + self.r - gamer.y)) <= gamer.r:
                 return angle
-            elif math.hypot((self.x + self.r - obj.x), (self.y + self.r - obj.y)) <= obj.r:
+            elif math.hypot((self.x + self.r - gamer.x), (self.y + self.r - gamer.y)) <= gamer.r:
                 return angle
             else:
                 return 100
 
-    def collision_with_fighter(self, obj): # применять в том случае, когда angle != 100
+    def collision_with_fighter(self, event, obj): # применять в том случае, когда angle != 100
         pygame.event.get()
         if event.type == pygame.MOUSEBUTTONDOWN:
             if math.hypot((pygame.mouse.get_pos() [0] - self.x), (pygame.mouse.get_pos() [1] - self.y)) <= self.r:
                 if self.r >= 0.6:
-                    self.r -= 0.5 # на сколько уменьшается радикс за один щелчкек
+                    self.r -= 0.5 # на сколько уменьшается радиус за один щелчкек
                 else:
                     if self.type == 2:
                         return 2 # это значит надо примемить функцию присвоения предмета, объект уничтожить
@@ -167,3 +167,10 @@ class Stone(Staticobjects):
                     self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.8), (self.r * 0.8))
                 else:
                     return 0 # это значит что надо перестать рисовать камень
+
+
+sc = pygame.display.set_mode((500, 300))
+Box.create_box(sc)
+
+Box.create_box()
+
