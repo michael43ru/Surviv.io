@@ -117,7 +117,7 @@ class Box(Staticobjects):
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
                 bottomright=((self.x + self.r), (self.y + self.r)))
         if self.interior_stuff == 3:
-            self.object_in_the_box = pygame.image.load()
+            self.object_in_the_box = pygame.image.load('Bullet.png')
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
                 bottomright=((self.x + self.r), (self.y + self.r)))
 
