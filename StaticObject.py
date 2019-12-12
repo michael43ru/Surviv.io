@@ -97,7 +97,7 @@ class Tree(Staticobjects):
             if math.hypot((pygame.mouse.get_pos()[0] - self.x), (pygame.mouse.get_pos()[1] - self.y)) <= self.r:
                 if self.r >= 0.6:
                     self.r *= 0.8 # на сколько уменьшается радикс за один щелчкек
-                    self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.8), (self.r * 0.8))
+                    self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.5), (self.r * 0.5))
                 else:
                     return 0 # это значит что надо перестать рисовать дерево
 
@@ -131,7 +131,7 @@ class Box(Staticobjects):
                           (pygame.mouse.get_pos()[1] - self.y - 0.5 * self.r)) <= self.r:
                 if self.r >= 0.6:
                     self.r *= 0.8 # на сколько уменьшается радикс за один щелчкек
-                    self.box_surf = pygame.transform.scale(self.box_surf, (self.r * 0.8), (self.r * 0.8))
+                    self.box_surf = pygame.transform.scale(self.box_surf, (self.r * 0.5), (self.r * 0.5))
                 else:
                     return 0 # это значит что надо перестать рисовать ящик, и вызвать функцию create_stuff, при этом открыть игроку возможность брать предметы
 
@@ -164,7 +164,7 @@ class Stone(Staticobjects):
             if math.hypot((pygame.mouse.get_pos()[0] - self.x), (pygame.mouse.get_pos()[1] - self.y)) <= self.r:
                 if self.r >= 0.6:
                     self.r *= 0.8 # на сколько уменьшается радикс за один щелчкек
-                    self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.8), (self.r * 0.8))
+                    self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.5), (self.r * 0.5))
                 else:
                     return 0 # это значит что надо перестать рисовать камень
 
