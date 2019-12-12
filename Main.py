@@ -35,7 +35,7 @@ red_zone_img = pg.image.load(path.join(img_dir, "Red_zone.png")).convert()'''
 v = Vector(0, 0)
 player = Player(game.width / 2, game.height / 2, 20, v, (0, 0, 0)) # здесь координаты игрока на экране
 player.get_target_vector(0, -1)
-player.get_hands()
+player.get_simple_hands()
 
 game.sc.fill(color_water)
 

@@ -29,7 +29,7 @@ class Game:
         self.width = 800
         self.height = 600
         self.fps = 30
-        self.len = 1000 # сторона карты
+        self.len = 40000 # сторона карты
 
         self.center_x = rnd(0.01 * self.len, 0.99 * self.len) # координаты игрока в мире
         self.center_y = rnd(0.01 * self.len, 0.99 * self.len)
@@ -45,6 +45,8 @@ class Game:
     def update(self):
         for lst in self.dinamic_objects:
             for obj in lst:
+                obj.x += obj.speed.x
+                obj.y += obj.speed.y
                 obj.x -= player.speed.x
                 obj.y -= player.speed.y
 
@@ -53,11 +55,13 @@ class Game:
                 obj.x -= player.speed.x
                 obj.y -= player.speed.y
 
+        player.x -= player.speed.x
+        player.y -= player.speed.y
+
+
     def main(self):
         
         self.clock.tick(self.fps)
-
-        self.update()
 
         for event in pygame.event.get():
             # check for closing window
@@ -85,42 +89,131 @@ class Game:
                 if key == pygame.K_s:
                     player.speed.y -= 8
 
-        (x, y) = pygame.mouse.get_pos()
-        player.get_target_vector(x, y)
-        player.delete_hands()
-        player.get_hands()
+        
 
-        for a in self.static_objects:
-            for b in a:
-                b.x -= player.speed.x
-                b.y -= player.speed.y
-        for a in self.dinamic_objects:
-            for b in a:
-                b.x -= player.speed.x
-                b.y -= player.speed.y
+        speed_x = player.speed.x
+        speed_y = player.speed.y
+
+        for lst_s in self.static_objects:
+            for static in lst_s:
+                if static.collision_with_gamer(player) == 100:
+                    pass
+                elif static.collision_with_gamer(player) < math.pi / 2 and (
+                    static.collision_with_gamer(player) > -math.pi / 2) and (
+                     static.collision_with_gamer(player) != 0):
+                    player.x -= player.speed.x
+                    player.y -= player.speed.y
+                    player.speed.x = 0
+                    player.speed.y = 0
+                elif static.collision_with_gamer(player) == 0:
+                    player.x -= player.speed.x
+                    player.speed.x = 0
+                elif static.collision_with_gamer(player) == math.pi / 2 or (
+                    static.collision_with_gamer(player) == -math.pi / 2):
+                    player.x -= player.speed.y
+                    player.speed.y = 0
+
+
+        (x, y) = pygame.mouse.get_pos()
+        player.update(x, y)
+        self.update()
 
         # water.x -= player.speed.x
         # water.y -= player.speed.y
         grass.x -= player.speed.x
         grass.y -= player.speed.y
+
+        for line in lines_x:
+            line.x -= player.speed.x
+            line.y -= player.speed.y
+        for line in lines_y:
+            line.x -= player.speed.x
+            line.y -= player.speed.y
+
+        for lst_s in self.static_objects:
+            for static in lst_s:
+                for lst_d in self.dinamic_objects:
+                    for dynamic in lst_d:
+                        if static.collision_with_gamer(dynamic) == 100:
+                            pass
+                        elif static.collision_with_gamer(dynamic) < math.pi / 2 and (
+                            static.collision_with_gamer(dynamic) > -math.pi / 2) and (
+                                static.collision_with_gamer(dynamic) != 0):
+                            if dynamic in self.bots:
+                                dynamic.x -= dynamic.speed.x
+                                dynamic.y -= dynamic.speed.y
+                                dynamic.speed.x = rnd(-1, 1) * dynamic.speed.x
+                                dynamic.speed.y = rnd(-1, 1) * dynamic.speed.y
+                                while dynamic.speed.x == 0 and dynamic.speed.y == 0:
+                                    dynamic.speed.x = rnd(-1, 1) * dynamic.speed.x
+                                    dynamic.speed.y = rnd(-1, 1) * dynamic.speed.y
+                            if dynamic in self.bullets:
+                                dynamic.live = False
+                        elif static.collision_with_gamer(dynamic) == 0:
+                            if dynamic in self.bots:
+                                dynamic.x -= dynamic.speed.x
+                                dynamic.speed.x = -dynamic.speed.x 
+                            if dynamic in self.bullets:
+                                dynamic.live = False
+                        elif static.collision_with_gamer(dynamic) == math.pi / 2 or (
+                            static.collision_with_gamer(dynamic) == -math.pi / 2):
+                            if dynamic in self.bots:
+                                dynamic.y -= dynamic.speed.y
+                                dynamic.speed.y = -dynamic.speed.y 
+                            if dynamic in self.bullets:
+                                dynamic.live = False
+
+
+                        
+                            
+                        
+                            
+        
         self.center_x += player.speed.x
         self.center_y += player.speed.y
 
-        '''water = pygame.draw.polygon(screen, color_water, ((water.x, water.y), (water.x + s, water.y),
-                                                          (water.x + s, water.y + s), (water.x, water.y + s)))'''
-        self.sc.fill(color_water)
-        '''grass = pygame.draw.polygon(screen, color_grass, ((grass.x, grass.y),
-                                                          (0.98 * s + grass.x, grass.y),
-                                                          (0.98 * s + grass.x, 0.98 * s + grass.y),
-                                                          (grass.x, 0.98 * s + grass.y)))'''
-        grass.draw(self.sc)
+        player.speed.x = speed_x
+        player.speed.y = speed_y
 
+        self.sc.fill(color_water)
+        grass.draw(self.sc)
+        for line in lines_x:
+            line.draw(self.sc)
+        for line in lines_y:
+            line.draw(self.sc)
+
+        '''self.static_objects = []
+        self.dinamic_objects = []
+
+        self.bots = []
+        self.boxes = []
+        self.bushes = []
+        self.trees = []
+        self.stones = []
+        self.bullets = []
+        self.bombs = []
+        self.drops = []
+        self.taken_objects = []'''
+
+        for obj in self.boxes:
+            obj.create_box(self.sc)
+
+        for obj in self.trees:
+            obj.create_tree(self.sc)
+
+        for obj in self.stones:
+            obj.create_stone(self.sc)
+
+        for obj in self.bots:
+            obj.draw(self.sc)
+            
         player.draw(self.sc)
 
         pygame.display.flip()
 
 
 # pygame.init()
+
 game = Game()
 
 # Задаем цвета
@@ -129,6 +222,7 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 green = (0, 255, 0)
+green_tree = (0, 180, 0)
 blue = (0, 0, 255)
 color_grass = [160, 255, 100]
 color_water = [70, 120, 255]
@@ -147,7 +241,7 @@ red_zone_img = pg.image.load(path.join(img_dir, "Red_zone.png")).convert()'''
 v = Vector(0, 0)
 player = Player(game.width / 2, game.height / 2, 20, v, (0, 0, 0)) # здесь координаты игрока на экране
 player.get_target_vector(0, -1)
-player.get_hands()
+player.get_simple_hands()
 
 game.sc.fill(color_water)
 
@@ -163,6 +257,59 @@ game.sc.fill(color_water)
 
 grass = Map(0.02 * game.len - game.center_x, 0.02 * game.len - game.center_y,
             0.96 * game.len, 0.96 * game.len, color_grass)
+
+lines_y = [0] * 101
+lines_x = [0] * 101
+for i in range(101):
+    lines_y[i] = Map(i * game.len / 100 - game.center_x, -game.center_y,
+                     0.5, game.len, white)
+for i in range(101):
+    lines_x[i] = Map(-game.center_x, i * game.len / 100 - game.center_y,
+                     game.len, 0.5, white)
+
+for i in range(3, 99, 1):
+    for j in range(3, 99, 1):
+        k = rnd(0, 4)
+        r = rnd(10, 20)
+        x = rnd(int(i * game.len / 100 + r * 0.75),
+                int((i + 1) * game.len // 100 - r * 0.75))
+        y = rnd(int(j * game.len / 100 + r * 0.75),
+                int((j + 1) * game.len // 100 - r * 0.75))
+
+        if k == 1: # Tree
+            obj = Tree(x, y, r, 1, green_tree)
+            game.trees.append(obj)
+                       
+        if k == 2: # Box
+            stuff = rnd(1, 3)
+            obj = Box(x, y, r, 2, black, stuff)
+            game.boxes.append(obj)
+
+        if k == 3: # Stone
+            obj = Stone(x, y, r, 1, black)
+            game.stones.append(obj)
+
+        if k == 0: # Bot
+            k = rnd(0, 25)
+            if k == 0:
+                vx = 0
+                vy = 0
+                while vx == 0 and vy == 0:
+                    vy = rnd(-1, 2)
+                    vx = rnd(-1, 2)
+                vx *= 8
+                vy *= 8
+                speed = Vector(vx, vy)
+                color_r = rnd(0, 256)
+                color_g = rnd(0, 256)
+                color_b = rnd(0, 256)
+                
+                obj = Bots(x, y, 20, speed, (color_r, color_g, color_b))
+                game.bots.append(obj)
+            
+        
+            
+
 
 # Цикл игры
 
