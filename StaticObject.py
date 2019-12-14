@@ -12,35 +12,35 @@ class Staticobjects(): # лучше вместо create везде пропис�
 
     def collision_with_gamer(self, gamer): # при столкновении с игроком, не пропускать игрока, возвращать угол объекта относительно игрока
         if self.type == 1: # куст дерево или что то круглое
-            if math.hypot((gamer.x - it.x), (gamer.y - it.y)) <= (it.r + gamer.r):
-                if it.x == gamer.x:
-                    if gamer.y < it.y:
+            if math.hypot((gamer.x - self.x), (gamer.y - self.y)) <= (self.r + gamer.r):
+                if self.x == gamer.x:
+                    if gamer.y < self.y:
                         return 0.5 * math.pi
                     else:
                         return -0.5 * math.pi
                 elif it.y == gamer.y:
-                    if gamer.x < it.x:
+                    if gamer.x < self.x:
                         return 0
                     else:
                         return -math.pi
                 else:
-                    return math.atan((it.y - gamer.y) / (it.x - gamer.x))
+                    return math.atan((self.y - gamer.y) / (self.x - gamer.x))
             else:
                 return 100 # если выводиться 100 это значит что нет столкновения, для других чисел выводится значение угла
                            # поворота объекта относительно игрока
         if self.type == 2: # ящик
             if gamer.x >= self.x:
                 angle_90 = - 0.5 * math.pi
-            elif gamer.x < it.x:
+            elif gamer.x < self.x:
                 angle_90 = 0.5 * math.pi
-            elif gamer.y <= it.y:
+            elif gamer.y <= self.y:
                 angle_90 = 0
-            elif gamer.y > it.y:
+            elif gamer.y > self.y:
                 angle_90 = - math.pi
-            if it.x == gamer.x:
-                if gamer.y <= it.y:
+            if self.x == gamer.x:
+                if gamer.y <= self.y:
                     angle = - 0.5 * math.pi
-                if gamer.y > it.y:
+                if gamer.y > self.y:
                     angle = 0.5 * math.pi
             else:
                 angle = - math.atan((self.y + 0.5 * self.r - gamer.y) / (self.x + 0.5 * self.r - gamer.x))
@@ -169,8 +169,4 @@ class Stone(Staticobjects):
                     return 0 # это значит что надо перестать рисовать камень
 
 
-sc = pygame.display.set_mode((500, 300))
-Box.create_box(sc)
-
-Box.create_box()
 
