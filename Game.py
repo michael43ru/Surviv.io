@@ -30,6 +30,7 @@ class Game:
         self.height = 600
         self.fps = 30
         self.len = 10000 # сторона карты
+        self.speed = 20
 
         self.center_x = rnd(0.01 * self.len, 0.99 * self.len) # координаты игрока в мире
         self.center_y = rnd(0.01 * self.len, 0.99 * self.len)
@@ -80,7 +81,7 @@ class Game:
         for i in range(3, 99, 10):
             for j in range(3, 99, 10):
                 k = rnd(0, 4)
-                r = rnd(10, 20)
+                r = rnd(49, 50)
                 x = rnd(int(i * self.len / 100 + r * 0.75),
                         int((i + 1) * self.len // 100 - r * 0.75))
                 y = rnd(int(j * self.len / 100 + r * 0.75),
@@ -89,6 +90,7 @@ class Game:
                 if k == 1: # Tree
                     obj = Tree(x - self.center_x, y - self.center_y, r, 1, green_tree)
                     self.trees.append(obj)
+                    obj.r = obj.r_interior
                                
                 if k == 2: # Box
                     stuff = rnd(1, 3)
@@ -156,29 +158,32 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 key = event.key
                 if key == pygame.K_a:
-                    player.speed.x -= 50
+                    player.speed.x -= self.speed
                 if key == pygame.K_d:
-                    player.speed.x += 50
+                    player.speed.x += self.speed
                 if key == pygame.K_w:
-                    player.speed.y -= 50
+                    player.speed.y -= self.speed
                 if key == pygame.K_s:
-                    player.speed.y += 50
+                    player.speed.y += self.speed
 
             if event.type == pygame.KEYUP:
                 key = event.key
                 if key == pygame.K_a:
-                    player.speed.x += 50
+                    player.speed.x += self.speed
                 if key == pygame.K_d:
-                    player.speed.x -= 50
+                    player.speed.x -= self.speed
                 if key == pygame.K_w:
-                    player.speed.y += 50
+                    player.speed.y += self.speed
                 if key == pygame.K_s:
-                    player.speed.y -= 50
+                    player.speed.y -= self.speed
 
         
 
         speed_x = player.speed.x
         speed_y = player.speed.y
+
+        player.x += speed_x
+        player.y += speed_y
 
         for lst_s in self.static_objects:
             for static in lst_s:
@@ -187,20 +192,21 @@ class Game:
                 elif static.collision_with_gamer(player) < math.pi / 2 and (
                     static.collision_with_gamer(player) > -math.pi / 2) and (
                      static.collision_with_gamer(player) != 0):
-                    player.x -= player.speed.x
-                    player.y -= player.speed.y
+                    # player.x -= player.speed.x
+                    # player.y -= player.speed.y
                     player.speed.x = 0
                     player.speed.y = 0
                 elif static.collision_with_gamer(player) == 0:
-                    player.x -= player.speed.x
+                    # player.x -= player.speed.x
                     player.speed.x = 0
                 elif static.collision_with_gamer(player) == math.pi / 2 or (
                     static.collision_with_gamer(player) == -math.pi / 2):
-                    player.x -= player.speed.y
+                    # player.x -= player.speed.y
                     player.speed.y = 0
 
 
-        
+        player.x -= speed_x
+        player.y -= speed_y
         
         self.update()
 
@@ -375,8 +381,8 @@ for i in range(101):
 
 game.spawn()
 
-tree = Tree(0, 0, 20, 1, green_tree)
-game.trees.append(tree)
+'''tree = Tree(0, 0, 20, 1, green_tree)
+game.trees.append(tree)'''
             
 
 
