@@ -1,7 +1,7 @@
 from DinamicObject import *
 from Vector import *
 import random
-TIME_TO_SHOT_KAMIKAZE = 3
+TIME_TO_SHOT_KAMIKAZE = 5
 TIME_TO_SHOT_SHOOTER = 3
 FPS = 30
 
@@ -23,17 +23,18 @@ clock = pygame.time.Clock()
 
 player = Player(int(width / 2), int(height / 2), int(30), Vector(0, 0))
 player.gun_in_hands = True
-player.bag.get_bullets("line")
+player.bag.get_bullets("divergent")
 bullet = []
 
 bots = []
-number_of_bots = 3
+number_of_bots = 7
 l = 300
 l_0 = 50
 for i in range(number_of_bots):
     k = 0
-
-    bots.append(Shooter(int(random.randint(0, width)),
+#int(random.randint(0, width)),
+#                        int(random.randint(0, height))
+    bots.append(Kamikaze(int(random.randint(0, width)),
                         int(random.randint(0, height)),
                         int(30), Vector(random.randint(-k, k), random.randint(-k, k)),
                         Vector(0, 0)))
@@ -121,7 +122,7 @@ while running:
 
 #attack
     for i in range(len(bots) - 1, -1, -1):
-        bots[i].delete_enemy()
+        bots[i].is_enemy = False
 
     for i in range(len(bots) - 1, -1, -1):
         for j in range(len(heroes) - 1, -1, -1):
@@ -134,14 +135,31 @@ while running:
                         bots[i].time_to_shot = TIME_TO_SHOT_SHOOTER
                     else:
                         bots[i].time_to_shot -= 1/FPS
-                if bots[i].type == "kamikaze":
-                    if bots[i].time_to_shot < 0:
 
-                        
+                if bots[i].type == "kamikaze":
+                    if bots[i].time_to_green > 1:
+                        bots[i].plus_green_to_hands()
+                        bots[i].time_to_green = 0
+                    else:
+                        bots[i].time_to_green += 1/FPS
+
+                    if bots[i].time_to_shot < 0:
+                        n = 10
+                        for s in range(n):
+                            bullet.append(BulletWithoutGun(bots[i].hands[0].x + bots[i].target_vector.turn(s * (360 / n)).x,
+                                                     bots[i].hands[0].y + bots[i].target_vector.turn(s * (360 / n)).y,
+                                                     bots[i].hands[0]))
+                            bullet.append(BulletWithoutGun(bots[i].hands[1].x + bots[i].target_vector.turn(s * (360 / n)).x,
+                                                     bots[i].hands[1].y + bots[i].target_vector.turn(s * (360 / n)).y,
+                                                     bots[i].hands[1]))
 
                         bots[i].health = 0
                     else:
                         bots[i].time_to_shot -= 1/FPS
+
+    for i in range(len(bots) - 1, -1, -1):
+        if not bots[i].is_enemy:
+            bots[i].delete_enemy()
 
 #update
     for i in range(len(bullet) - 1, -1, -1):

@@ -9,8 +9,9 @@ FPS = 30
 COLOR = [255, 255, 120]
 HEALTH_PLAYER = 10
 HEALTH_BOTS = 4
-TIME_TO_SHOT_SHOOTER = 2
-TIME_TO_SHOT_KAMIKAZE = 3
+TIME_TO_SHOT_SHOOTER = 3
+TIME_TO_SHOT_KAMIKAZE = 5
+STANDART_SIZE_OF_HANDS = 0.25
 
 
 class DinamicObject(ABC):
@@ -74,6 +75,20 @@ class Bullet(DinamicObject):
         self.move()
         self.draw(surface)
 
+
+class BulletWithoutGun(Bullet):
+    def __init__(self, target_x, target_y, centre):
+        self.name = "bullet"
+        self.x = centre.x
+        self.y = centre.y
+        self.live = True
+        self.speed_step = 6
+        self.r = 3
+        self.hit_distance = 80
+        self.color = (0, 0, 0)
+        self.direction = Vector(target_x - centre.x, target_y - centre.y).normalized()
+        self.speed = self.direction.mult_by_scalar(self.speed_step)
+        self.bounds = None
 
 class SimpleShot(Bullet):
     def __init__(self, target_x, target_y, player):
@@ -160,7 +175,7 @@ class Heroes(DinamicObject):
         self.exist_hands = False
         self.exist_target = False
         self.gun_in_hands = False
-        self.size_of_hands = 0.25
+        self.size_of_hands = STANDART_SIZE_OF_HANDS
 
     def wound(self, obj):
         if self.is_collision(obj) and obj.name == "bullet":
@@ -322,44 +337,42 @@ class Kamikaze(Bots):
         super().__init__(x, y, r, speed, default_target)
         self.gun_in_hands = False
         self.time_to_shot = TIME_TO_SHOT_KAMIKAZE
+        self.time_to_green = 0
         self.type = "kamikaze"
         self.array_color_hands = [COLOR[0], COLOR[1], COLOR[2]]
         self.color_hands = (self.array_color_hands[0], self.array_color_hands[1], self.array_color_hands[2])
 
-    def update(self, target_x, target_y, surface):
-        self.delete_target()
-        self.delete_hands()
-        self.get_target_vector(target_x, target_y)
-        self.get_simple_hands()
-
-        self.move()
-        self.draw(surface)
+    def update(self, surface):
+        if self.is_enemy:
+            super(Bots, self).update(self.coords_enemy[0], self.coords_enemy[1], surface)
+        else:
+            super(Bots, self).update(self.default_target.x, self.default_target.y, surface)
 
     def draw_hands(self, surface):
         for hand in self.hands:
             pygame.draw.circle(surface, self.color_hands, (int(hand.x), int(hand.y)), int(hand.r))
             #черная каёмочка рук
-            pygame.draw.circle(surface, (0, 0, 0), (int(hand.x), int(hand.y)), int(hand.r), int(0.15*hand.r))
+            pygame.draw.circle(surface, (0, 0, 0), (int(hand.x), int(hand.y)), int(hand.r), int(0.15*30*STANDART_SIZE_OF_HANDS))
 
-    def fire_to_enemy(self, enemy):
+    def get_enemy(self, enemy):
         self.is_enemy = True
         self.get_target_vector(enemy.x, enemy.y)
-        self.speed = Vector(enemy.x, enemy.y).normalized()
-        self.fire(enemy)
+        self.speed = Vector(self.target_vector.x, self.target_vector.y).normalized().mult_by_scalar(1)
+        self.coords_enemy = [enemy.x, enemy.y]
 
-    def fire(self, enemy):
-        if self.time_to_shot < 0:
-            self.size_of_hands += 0.1
-            self.plus_green()
-            self.time_to_shot = 2
-        else:
-            self.time_to_shot -= 1/FPS
+    def delete_enemy(self):
+        self.is_enemy = False
+        self.speed = self.default_speed
+        # при удалении можно делать руки обычными, а можно оставлять большими
+        #self.color_hands = self.color
+        #self.size_of_hands = STANDART_SIZE_OF_HANDS
 
-    def plus_green(self):
+    def plus_green_to_hands(self):
         #FIXME: работает только для игроков с цветом COLOR
-        self.array_color_hands[0] -= COLOR[0] / HEALTH_BOTS
-        self.array_color_hands[2] -= COLOR[2] / HEALTH_BOTS
+        self.array_color_hands[0] -= COLOR[0] / TIME_TO_SHOT_KAMIKAZE
+        self.array_color_hands[2] -= COLOR[2] / TIME_TO_SHOT_KAMIKAZE
         self.color_hands = (self.array_color_hands[0], self.array_color_hands[1], self.array_color_hands[2])
+        self.size_of_hands += 0.65 / (TIME_TO_SHOT_KAMIKAZE-1)
 
     def plus_red(self):
         #FIXME: работает только для игроков с цветом COLOR
