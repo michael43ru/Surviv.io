@@ -43,10 +43,8 @@ class Staticobjects(): # лучше вместо create везде пропис�
                 if gamer.y > self.y:
                     angle = 0.5 * math.pi
             else:
-                if self.x + 0.5 * self.r != gamer.x:
-                    angle = - math.atan((self.y + 0.5 * self.r - gamer.y) / (self.x + 0.5 * self.r - gamer.x))
-                else:
-                    angle = 0
+                if self.x != gamer.x:
+                    angle = - math.atan((self.y - gamer.y) / (self.x - gamer.x))
             if (self.x + self.r - gamer.x - gamer.r >= 0) and (self.x - gamer.x - gamer.r <= 0) and (
                     self.y + self.r - gamer.y >= 0) and (self.y - self.r - gamer.y <= 0):
                 return angle_90
@@ -90,12 +88,16 @@ class Tree(Staticobjects, pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('bush.png').convert()
         self.image.set_colorkey((225, 225, 225))
-        self.rect = self.image.get_rect(center=(x, y))
-        self.r = 256
+        self.rect = self.image.get_rect()
+        self.r = self.rect.width * 0.5
+        self.rect.x = self.x - self.r
+        self.rect.y = self.y - self.r
+        self.rect.width = 2 * self.r
+        self.rect.height = 2 * self.r
 
     def create_tree(self, sc): # создание дерева или куста, для каждого объекта будет отдельная функция создания
         pygame.draw.circle(sc, (255, 255, 255), [self.x, self.y], self.r_interior) # рисует ствол
-        sc.blit(self.image, (self.x + self.r, self.y + self.r))
+        sc.blit(self.image, (self.x - self.r, self.y - self.r))
 
     def collision_with_fighter(self, event): # применять в том случае, когда angle != 100
         pygame.event.get()
@@ -114,8 +116,12 @@ class Box(Staticobjects, pygame.sprite.Sprite):
         self.interior_stuff = interior_stuff
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('box.png').convert()
-        self.rect = self.image.get_rect(center=(x, y))
-        self.r = 128
+        self.rect = self.image.get_rect()
+        self.r = self.rect.width * 0.5
+        self.rect.x = self.x - self.r
+        self.rect.y = self.y - self.r
+        self.rect.width = 2 * self.r
+        self.rect.height = 2 * self.r
         if self.interior_stuff == 1:
             self.object_in_the_box = pygame.image.load('gun.png')
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
@@ -130,7 +136,7 @@ class Box(Staticobjects, pygame.sprite.Sprite):
                 bottomright=((self.x + self.r), (self.y + self.r)))
 
     def create_box(self, sc):
-        sc.blit(self.image, (self.x + self.r, self.y + self.r))
+        sc.blit(self.image, (self.x - self.r, self.y - self.r))
 
     def collision_with_fighter(self, event): # применять в том случае, когда angle != 100
         pygame.event.get()
@@ -175,6 +181,8 @@ class Stone(Staticobjects):
                     self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.5), (self.r * 0.5))
                 else:
                     return 0 # это значит что надо перестать рисовать камень
+
+
 
 
 
