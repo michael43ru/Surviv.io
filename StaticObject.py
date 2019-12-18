@@ -46,7 +46,7 @@ class Staticobjects(): # лучше вместо create везде пропис�
                 if self.x + 0.5 * self.r != gamer.x:
                     angle = - math.atan((self.y + 0.5 * self.r - gamer.y) / (self.x + 0.5 * self.r - gamer.x))
                 else:
-                    angle =
+                    angle = 0
             if (self.x + self.r - gamer.x - gamer.r >= 0) and (self.x - gamer.x - gamer.r <= 0) and (
                     self.y + self.r - gamer.y >= 0) and (self.y - self.r - gamer.y <= 0):
                 return angle_90
