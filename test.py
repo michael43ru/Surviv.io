@@ -27,9 +27,12 @@ player.bag.get_bullets("line")
 bullet = []
 
 bots = []
-b = 2
-for i in range(b):
-    k = 1
+number_of_bots = 3
+l = 300
+l_0 = 50
+for i in range(number_of_bots):
+    k = 0
+
     bots.append(Shooter(int(random.randint(0, width)),
                         int(random.randint(0, height)),
                         int(30), Vector(random.randint(-k, k), random.randint(-k, k)),
@@ -118,6 +121,9 @@ while running:
 
 #attack
     for i in range(len(bots) - 1, -1, -1):
+        bots[i].delete_enemy()
+
+    for i in range(len(bots) - 1, -1, -1):
         for j in range(len(heroes) - 1, -1, -1):
             if i != j-1 and bots[i].attack(heroes[j]) and not bots[i].is_enemy:
                 bots[i].get_enemy(heroes[j])
@@ -127,8 +133,6 @@ while running:
                     bots[i].time_to_shot = TIME_TO_SHOT_SHOOTER
                 else:
                     bots[i].time_to_shot -= 1/FPS
-            else:
-                bots[i].delete_enemy()
 
 #update
     for i in range(len(bullet) - 1, -1, -1):
@@ -150,7 +154,7 @@ while running:
 
     heroes = [player] + bots
 
-    #print(len(bullet))
+    #print(len(heroes))
 
     pygame.display.flip()
 
