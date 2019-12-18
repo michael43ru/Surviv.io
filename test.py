@@ -27,7 +27,7 @@ player.bag.get_bullets("divergent")
 bullet = []
 
 bots = []
-number_of_bots = 7
+number_of_bots = 1
 l = 300
 l_0 = 50
 for i in range(number_of_bots):

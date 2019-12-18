@@ -374,8 +374,9 @@ class Kamikaze(Bots):
 
     def plus_green_to_hands(self):
         #FIXME: работает только для игроков с цветом COLOR
-        self.array_color_hands[0] -= COLOR[0] / TIME_TO_SHOT_KAMIKAZE
-        self.array_color_hands[2] -= COLOR[2] / TIME_TO_SHOT_KAMIKAZE
+        self.array_color_hands[0] -= (COLOR[0] - 36) / TIME_TO_SHOT_KAMIKAZE
+        self.array_color_hands[1] -= (COLOR[1] - 200) / TIME_TO_SHOT_KAMIKAZE
+        self.array_color_hands[2] -= (COLOR[2] - 10) / TIME_TO_SHOT_KAMIKAZE
         self.color_hands = (self.array_color_hands[0], self.array_color_hands[1], self.array_color_hands[2])
         self.size_of_hands += 0.65 / (TIME_TO_SHOT_KAMIKAZE-1)
 
