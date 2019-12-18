@@ -29,44 +29,22 @@ class Staticobjects(): # лучше вместо create везде пропис�
                 return 100 # если выводиться 100 это значит что нет столкновения, для других чисел выводится значение угла
                            # поворота объекта относительно игрока
         if self.type == 2: # ящик
-            if gamer.x >= self.x:
-                angle_90 = - 0.5 * math.pi
-            elif gamer.x < self.x:
-                angle_90 = 0.5 * math.pi
-            elif gamer.y <= self.y:
-                angle_90 = 0
-            elif gamer.y > self.y:
-                angle_90 = - math.pi
-            if self.x == gamer.x:
-                if gamer.y <= self.y:
-                    angle = - 0.5 * math.pi
-                if gamer.y > self.y:
-                    angle = 0.5 * math.pi
+            if math.hypot((gamer.x - self.x), (gamer.y - self.y)) <= (math.sqrt(4.5 / math.pi) * self.r + gamer.r):
+                if self.x == gamer.x:
+                    if gamer.y < self.y:
+                        return 0.5 * math.pi
+                    else:
+                        return -0.5 * math.pi
+                elif self.y == gamer.y:
+                    if gamer.x < self.x:
+                        return 0
+                    else:
+                        return -math.pi
+                else:
+                    return math.atan((self.y - gamer.y) / (self.x - gamer.x))
             else:
-                if self.x != gamer.x:
-                    angle = - math.atan((self.y - gamer.y) / (self.x - gamer.x))
-            if (self.x + self.r - gamer.x - gamer.r >= 0) and (self.x - gamer.x - gamer.r <= 0) and (
-                    self.y + self.r - gamer.y >= 0) and (self.y - self.r - gamer.y <= 0):
-                return angle_90
-            elif (self.x + self.r - gamer.x + gamer.r >= 0) and (self.x - gamer.x + gamer.r <= 0) and (
-                    self.y + self.r - gamer.y >= 0) and (self.y - self.r - gamer.y <= 0):
-                return angle_90
-            elif (self.x + self.r - gamer.x >= 0) and (self.x - gamer.x <= 0) and (
-                    self.y + self.r - gamer.y - gamer.r >= 0) and (self.y - gamer.y - gamer.r <= 0):
-                return angle_90
-            elif (self.x + self.r - gamer.x >= 0) and (self.x - gamer.x <= 0) and (
-                    self.y + self.r - gamer.y + gamer.r >= 0) and (self.y - self.r - gamer.y + gamer.r <= 0):
-                return angle_90
-            elif math.hypot((self.x - gamer.x), (self.y - gamer.y)) <= gamer.r:
-                return angle
-            elif math.hypot((self.x + self.r - gamer.x), (self.y - gamer.y)) <= gamer.r:
-                return angle
-            elif math.hypot((self.x - gamer.x), (self.y + self.r - gamer.y)) <= gamer.r:
-                return angle
-            elif math.hypot((self.x + self.r - gamer.x), (self.y + self.r - gamer.y)) <= gamer.r:
-                return angle
-            else:
-                return 100
+                return 100 # если выводиться 100 это значит что нет столкновения, для других чисел выводится значение угла
+                           # поворота объекта относительно игрока
 
     def collision_with_fighter(self, event, obj): # применять в том случае, когда angle != 100
         pygame.event.get()
