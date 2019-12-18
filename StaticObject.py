@@ -2,6 +2,8 @@ import pygame
 import math
 
 
+brown = (128, 64, 0)
+
 class Staticobjects(): # лучше вместо create везде прописать draw, чтобы больше по смыслу подходило
     def __init__(self, x, y, r, number_of_type):
         self.x = x
@@ -33,12 +35,12 @@ class Staticobjects(): # лучше вместо create везде пропис�
             l = math.hypot((self.x - gamer.x), (self.y - gamer.y))
             x_a = abs(l - gamer.r) / math.sqrt(1 + (((self.x - gamer.x) / (self.y - gamer.y)) ** 2))
             y_a = abs(l - gamer.r) / math.sqrt(1 + (((self.y - gamer.y) / (self.x - gamer.x)) ** 2))
-            if x_a ** 6 + y_a ** 12 <= (3.6 / math.pi) * (self.r ** 12):
+            if x_a ** 12 + y_a ** 12 <= (3.6 / math.pi) * (self.r ** 12):
                 return math.atan((self.y - gamer.y) / (self.x - gamer.x))
             else:
                 return 100
 
-    def collision_with_fighter(self, event, obj): # применять в том случае, когда angle != 100
+    '''def collision_with_fighter(self, event, obj): # применять в том случае, когда angle != 100
         pygame.event.get()
         if event.type == pygame.MOUSEBUTTONDOWN:
             if math.hypot((pygame.mouse.get_pos() [0] - self.x), (pygame.mouse.get_pos() [1] - self.y)) <= self.r:
@@ -48,27 +50,29 @@ class Staticobjects(): # лучше вместо create везде пропис�
                     if self.type == 2:
                         return 2 # это значит надо примемить функцию присвоения предмета, объект уничтожить
                     else:
-                        return 1 # просто уничтожить объект
+                        return 1 # просто уничтожить объект'''
 
 
 class Tree(Staticobjects, pygame.sprite.Sprite):
-    def __init__(self, x, y, r, number_of_type, r_interior=5):
+    def __init__(self, x, y, r, number_of_type, r_interior=15):
         Staticobjects.__init__(self, x, y, r, number_of_type)
-        self.r_interior = r_interior # радиус ствола
+        self.r = r_interior # радиус ствола
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('tree.png').convert()
         self.image.set_colorkey((255, 255, 255))
-        self.image.set_colorkey((238, 238, 238))
+        # self.image.set_colorkey((238, 238, 238))
         self.rect = self.image.get_rect()
-        self.r = self.rect.width * 0.5
-        self.rect.x = self.x - self.r
-        self.rect.y = self.y - self.r
-        self.rect.width = 2 * self.r
-        self.rect.height = 2 * self.r
+        self.r1 = self.rect.width * 0.5
+        self.rect.x = self.x - self.r1
+        self.rect.y = self.y - self.r1
+        self.rect.width = 2 * self.r1
+        self.rect.height = 2 * self.r1
+        
+        
 
     def create_tree(self, sc): # создание дерева или куста, для каждого объекта будет отдельная функция создания
-        pygame.draw.circle(sc, (255, 255, 255), [self.x, self.y], self.r_interior) # рисует ствол
-        sc.blit(self.image, (self.x - self.r, self.y - self.r))
+        pygame.draw.circle(sc, brown, [int(self.x), int(self.y)], self.r) # рисует ствол
+        sc.blit(self.image, (self.x - self.r1, self.y - self.r1))
 
     def collision_with_fighter(self, event): # применять в том случае, когда angle != 100
         pygame.event.get()
@@ -102,23 +106,29 @@ class Box(Staticobjects, pygame.sprite.Sprite):
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
                 bottomright=((self.x + self.r), (self.y + self.r)))
         if self.interior_stuff == 3:
-            self.object_in_the_box = pygame.image.load('Bullet.png')
+            self.object_in_the_box = pygame.image.load('Bullet1.png')
+            self.object_in_the_box_rect = self.object_in_the_box.get_rect(
+                bottomright=((self.x + self.r), (self.y + self.r)))
+        if self.interior_stuff == 4:
+            self.object_in_the_box = pygame.image.load('Bullet2.png')
+            self.object_in_the_box_rect = self.object_in_the_box.get_rect(
+                bottomright=((self.x + self.r), (self.y + self.r)))
+        if self.interior_stuff == 5:
+            self.object_in_the_box = pygame.image.load('Bullet3.png')
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
                 bottomright=((self.x + self.r), (self.y + self.r)))
 
     def create_box(self, sc):
         sc.blit(self.image, (self.x - self.r, self.y - self.r))
 
-    def collision_with_fighter(self, event): # применять в том случае, когда angle != 100
-        pygame.event.get()
-        if event.type == pygame.MOUSEBUTTONDOWN:
+    def collision_with_fighter(self): # применять в том случае, когда angle != 100
+        # pygame.event.get()
+        # if event.type == pygame.MOUSEBUTTONDOWN:
             if math.hypot((pygame.mouse.get_pos()[0] - self.x - 0.5 * self.r),
                           (pygame.mouse.get_pos()[1] - self.y - 0.5 * self.r)) <= self.r:
-                if self.r >= 0.6:
-                    self.r *= 0.8 # на сколько уменьшается радикс за один щелчкек
-                    self.box_surf = pygame.transform.scale(self.box_surf, (self.r * 0.5), (self.r * 0.5))
-                else:
-                    return 0 # это значит что надо перестать рисовать ящик, и вызвать функцию create_stuff, при этом открыть игроку возможность брать предметы
+                return 0
+            else:
+                return 1 # это значит что надо перестать рисовать ящик, и вызвать функцию create_stuff, при этом открыть игроку возможность брать предметы
 
     def create_stuff(self, sc):
         sc.blit(self.object_in_the_box, self.object_in_the_box_rect)
@@ -141,16 +151,14 @@ class Stone(Staticobjects):
 
 
     def create_stone(self, sc):
-        pygame.draw.circle(sc, (0, 0, 0), [self.x, self.y], self.r)
+        pygame.draw.circle(sc, (0, 0, 0), [int(self.x), int(self.y)], int(self.r))
 
-    def collision_with_fighter(self, event): # применять в том случае, когда angle != 100
-        pygame.event.get()
-        if event.type == pygame.MOUSEBUTTONDOWN:
+    def collision_with_fighter(self): # применять в том случае, когда angle != 100
+        # pygame.event.get()
+        # if event.type == pygame.MOUSEBUTTONDOWN:
             if math.hypot((pygame.mouse.get_pos()[0] - self.x), (pygame.mouse.get_pos()[1] - self.y)) <= self.r:
-                if self.r >= 0.6:
+                if self.r >= 20:
                     self.r *= 0.8 # на сколько уменьшается радикс за один щелчкек
-                    self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.5), (self.r * 0.5))
+                    # self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.5), (self.r * 0.5))
                 else:
                     return 0 # это значит что надо перестать рисовать камень
-
-
