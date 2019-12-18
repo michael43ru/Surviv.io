@@ -4,15 +4,22 @@ from Bag import *
 from pygame.rect import Rect
 import math as m
 from abc import ABC, abstractmethod
+import random
+FPS = 30
+COLOR = [255, 255, 120]
+HEALTH_PLAYER = 10
+HEALTH_BOTS = 4
+TIME_TO_SHOT_SHOOTER = 2
+TIME_TO_SHOT_KAMIKAZE = 3
 
 
 class DinamicObject(ABC):
 
     @abstractmethod
-    def __init__(self, x, y, r, speed, color):
+    def __init__(self, x, y, r, speed):
         self.bounds = Rect(x, y, r, r) #как бы границы объекта(квадрат вокруг нашей круглой фигуры)
         self.speed = speed
-        self.array_color = [color[0], color[1], color[2]]
+        self.array_color = [COLOR[0], COLOR[1], COLOR[2]]
         self.color = (self.array_color[0], self.array_color[1], self.array_color[2])
         #координаты центра объекта
         self.x = x + r / 2
@@ -43,7 +50,7 @@ class Bullet(DinamicObject):
         self.x = player.gun.x_end
         self.y = player.gun.y_end
         self.live = True
-        self.speed_step = 3
+        self.speed_step = 6
         self.r = 3
         self.hit_distance = 80
         self.color = (0, 0, 0)
@@ -87,7 +94,7 @@ class TripleShot(Bullet):
             self.array.append(SimpleShot(target_x, target_y, player))
         self.direction = Vector(target_x - player.x, target_y - player.y).normalized()
         for i in range(self.n):
-            k = 3
+            k = 2.5
             self.array[i].direction = Vector(target_x - player.x, target_y - player.y).normalized()
             self.array[i].speed = self.array[i].direction.mult_by_scalar(self.array[i].speed_step)
             self.array[i].x = player.gun.x_end + k*i*self.array[i].direction.x
@@ -144,17 +151,16 @@ class DivergentShot(Bullet):
 
 class Heroes(DinamicObject):
 
-    def __init__(self, x, y, r, speed, color):
-        super().__init__(x, y, r, speed, color)
+    def __init__(self, x, y, r, speed):
+        super().__init__(x, y, r, speed)
         self.name = "heroes"
         self.target_vector = Vector(0, 0) #нулевой вектор обозначает отсутствие цели
         self.is_live = True
-        self.health = 4
         self.hands = []
         self.exist_hands = False
         self.exist_target = False
         self.gun_in_hands = False
-        #self.hands = self.get_hands(target_vector, self.x, self.y, self.r)
+        self.size_of_hands = 0.25
 
     def wound(self, obj):
         if self.is_collision(obj) and obj.name == "bullet":
@@ -165,14 +171,8 @@ class Heroes(DinamicObject):
             return False
 
     def plus_red(self):
-        #FIXME: работает только для игроков белого цвета с 4 жизнями
-        k = 60
-        if self.array_color[0] > 128:
-            self.array_color[1] -= k
-            self.array_color[2] -= k
-        else:
-            self.array_color[0] -= k
-        self.color = (self.array_color[0], self.array_color[1], self.array_color[2])
+        #FIXME: работает только для игроков с цветом COLOR
+        pass
 
     def move(self):
         super().move()
@@ -181,6 +181,8 @@ class Heroes(DinamicObject):
         self.draw_body(surface)
         if self.exist_hands:
             self.draw_hands(surface)
+        if self.gun_in_hands:
+            self.draw_gun(surface)
 
     def draw_body(self, surface):
         #зачем int()
@@ -193,19 +195,18 @@ class Heroes(DinamicObject):
         pass
 
     def get_simple_hands(self):
-        k = 0.25
         self.exist_hands = True
         if self.target_vector.is_null_vector():
 
             hand1 = Ball(self.target_vector.turn(30).x + self.x,
-                         self.target_vector.turn(30).y + self.y, k*self.r)
+                         self.target_vector.turn(30).y + self.y, self.size_of_hands*self.r)
             hand2 = Ball(self.target_vector.turn(-30).x + self.x,
-                         self.target_vector.turn(-30).y + self.y, k*self.r)
+                         self.target_vector.turn(-30).y + self.y, self.size_of_hands*self.r)
         else:
             hand1 = Ball(self.target_vector.turn(30).x + self.x,
-                         self.target_vector.turn(30).y + self.y, k*self.r)
+                         self.target_vector.turn(30).y + self.y, self.size_of_hands*self.r)
             hand2 = Ball(self.target_vector.turn(-30).x + self.x,
-                         self.target_vector.turn(-30).y + self.y, k*self.r)
+                         self.target_vector.turn(-30).y + self.y, self.size_of_hands*self.r)
         self.hands.append(hand1)
         self.hands.append(hand2)
         return self.hands
@@ -213,6 +214,7 @@ class Heroes(DinamicObject):
     def draw_hands(self, surface):
         for hand in self.hands:
             pygame.draw.circle(surface, self.color, (int(hand.x), int(hand.y)), int(hand.r))
+            #черная каёмочка рук
             pygame.draw.circle(surface, (0, 0, 0), (int(hand.x), int(hand.y)), int(hand.r), int(0.15*hand.r))
 
     def get_target_vector(self, x, y):
@@ -235,29 +237,16 @@ class Heroes(DinamicObject):
         self.delete_target()
         self.delete_hands()
         self.get_target_vector(target_x, target_y)
-        self.get_simple_hands()
+        if self.gun_in_hands:
+            self.get_simple_gun()
+        else:
+            self.get_simple_hands()
 
         self.move()
         self.draw(surface)
 
-
-class Player(Heroes):
-    def __init__(self, x, y, r, speed, color):
-        super().__init__(x, y, r, speed, color)
-        self.gun_in_hands = False
-        self.bag = StandartBag()
-        self.gun = None
-
-    def draw(self, surface):
-        self.draw_body(surface)
-        self.draw_hands(surface)
-        if self.gun_in_hands:
-            self.draw_gun(surface)
-        self.bag.draw(surface, self)
-
     def get_simple_gun(self):
         if self.exist_target:
-            self.gun_in_hands = True
             self.exist_hands = True
             self.gun = SimpleGun(self.target_vector.x + self.x,
                                  self.target_vector.y + self.y,
@@ -268,39 +257,146 @@ class Player(Heroes):
             print('Но у вас же нет цели, зачем оружие?!')
 
     def get_hands_to_simple_gun(self):
-        k = 0.25
         #FIXME: как по-умному создавать новый объект в python?!
         turn_hand = Vector(self.target_vector.x, self.target_vector.y)
         hand1 = Ball(self.target_vector.x + self.x,
-                     self.target_vector.y + self.y, k*self.r)
+                     self.target_vector.y + self.y, self.size_of_hands*self.r)
         hand2 = Ball(turn_hand.mult_by_scalar(0.75).turn(-3).x + self.x + self.target_vector.x,
                      turn_hand.mult_by_scalar(0.75).turn(-3).y + self.y + self.target_vector.y,
-                     k*self.r)
+                     self.size_of_hands*self.r)
         self.hands.append(hand1)
         self.hands.append(hand2)
 
     def draw_gun(self, surface):
         self.gun.draw(surface)
 
-    def update(self, target_x, target_y, surface):
-        self.delete_target()
-        self.delete_hands()
-        self.get_target_vector(target_x, target_y)
-        if self.gun_in_hands:
-            self.get_simple_gun()
-        else:
-            self.get_simple_hands()
 
-        self.move()
-        self.draw(surface)
+class Player(Heroes):
+    def __init__(self, x, y, r, speed):
+        super().__init__(x, y, r, speed)
+        self.gun_in_hands = False
+        self.bag = StandartBag()
+        self.gun = None
+        self.health = HEALTH_PLAYER
+        self.type = "player"
+
+    def plus_red(self):
+        #FIXME: работает только для игроков с цветом COLOR
+        self.array_color[1] -= COLOR[1] / HEALTH_PLAYER
+        self.array_color[2] -= COLOR[2] / HEALTH_PLAYER
+        self.color = (self.array_color[0], self.array_color[1], self.array_color[2])
+
+    def draw(self, surface):
+        self.draw_body(surface)
+        self.draw_hands(surface)
+        if self.gun_in_hands:
+            self.draw_gun(surface)
+        self.bag.draw(surface, self)
 
 
 class Bots(Heroes):
-    def __init__(self, x, y, r, speed, color):
-        super().__init__(x, y, r, speed, color)
-        self.bounds_of_fight = 5*self.r
-        self.gun_in_hands = 
+    def __init__(self, x, y, r, speed, default_target):
+        super().__init__(x, y, r, speed)
+        self.bounds_of_fight = 15*self.r
+        self.health = HEALTH_BOTS
+        self.is_enemy = False
+        self.default_target = default_target
+        self.coords_enemy = []
+        self.default_speed = speed
+        self.exist_target = True
+        #self.gun_in_hands = random.choice(True, False)
 
     def draw(self, surface):
         super().draw(surface)
         #self.draw_target_vector(surface)
+
+    def attack(self, obj):
+        if (self.x - obj.x)**2 + (self.y - obj.y)**2 <= self.bounds_of_fight**2:
+            return True
+        else:
+            return False
+
+
+class Kamikaze(Bots):
+    def __init__(self, x, y, r, speed, default_target):
+        super().__init__(x, y, r, speed, default_target)
+        self.gun_in_hands = False
+        self.time_to_shot = TIME_TO_SHOT_KAMIKAZE
+        self.type = "kamikaze"
+        self.array_color_hands = [COLOR[0], COLOR[1], COLOR[2]]
+        self.color_hands = (self.array_color_hands[0], self.array_color_hands[1], self.array_color_hands[2])
+
+    def update(self, target_x, target_y, surface):
+        self.delete_target()
+        self.delete_hands()
+        self.get_target_vector(target_x, target_y)
+        self.get_simple_hands()
+
+        self.move()
+        self.draw(surface)
+
+    def draw_hands(self, surface):
+        for hand in self.hands:
+            pygame.draw.circle(surface, self.color_hands, (int(hand.x), int(hand.y)), int(hand.r))
+            #черная каёмочка рук
+            pygame.draw.circle(surface, (0, 0, 0), (int(hand.x), int(hand.y)), int(hand.r), int(0.15*hand.r))
+
+    def fire_to_enemy(self, enemy):
+        self.is_enemy = True
+        self.get_target_vector(enemy.x, enemy.y)
+        self.speed = Vector(enemy.x, enemy.y).normalized()
+        self.fire(enemy)
+
+    def fire(self, enemy):
+        if self.time_to_shot < 0:
+            self.size_of_hands += 0.1
+            self.plus_green()
+            self.time_to_shot = 2
+        else:
+            self.time_to_shot -= 1/FPS
+
+    def plus_green(self):
+        #FIXME: работает только для игроков с цветом COLOR
+        self.array_color_hands[0] -= COLOR[0] / HEALTH_BOTS
+        self.array_color_hands[2] -= COLOR[2] / HEALTH_BOTS
+        self.color_hands = (self.array_color_hands[0], self.array_color_hands[1], self.array_color_hands[2])
+
+    def plus_red(self):
+        #FIXME: работает только для игроков с цветом COLOR
+        self.array_color[1] -= COLOR[1] / HEALTH_BOTS
+        self.array_color[2] -= COLOR[2] / HEALTH_BOTS
+        self.color = (self.array_color[0], self.array_color[1], self.array_color[2])
+
+
+class Shooter(Bots):
+    def __init__(self, x, y, r, speed, default_target):
+        super().__init__(x, y, r, speed, default_target)
+        self.gun_in_hands = False
+        self.time_to_shot = TIME_TO_SHOT_SHOOTER
+        self.gun = None
+        self.type = "shooter"
+
+    def plus_red(self):
+        #FIXME: работает только для игроков с цветом COLOR
+        self.array_color[1] -= COLOR[1] / HEALTH_BOTS
+        self.array_color[2] -= COLOR[2] / HEALTH_BOTS
+        self.color = (self.array_color[0], self.array_color[1], self.array_color[2])
+
+    def get_enemy(self, enemy):
+        self.is_enemy = True
+        self.gun_in_hands = True
+        self.get_target_vector(enemy.x, enemy.y)
+        self.speed = Vector(self.target_vector.x, self.target_vector.y).normalized().mult_by_scalar(1)
+        self.coords_enemy = [enemy.x, enemy.y]
+
+    def delete_enemy(self):
+        self.is_enemy = False
+        self.gun_in_hands = False
+        self.speed = self.default_speed
+
+    def update(self, surface):
+        if self.is_enemy:
+            super(Bots, self).update(self.coords_enemy[0], self.coords_enemy[1], surface)
+        else:
+            super(Bots, self).update(self.default_target.x, self.default_target.y, surface)
+
