@@ -128,11 +128,20 @@ while running:
             if i != j-1 and bots[i].attack(heroes[j]) and not bots[i].is_enemy:
                 bots[i].get_enemy(heroes[j])
 
-                if bots[i].time_to_shot < 0:
-                    bullet.append(SimpleShot(bots[i].coords_enemy[0], bots[i].coords_enemy[1], bots[i]))
-                    bots[i].time_to_shot = TIME_TO_SHOT_SHOOTER
-                else:
-                    bots[i].time_to_shot -= 1/FPS
+                if bots[i].type == "shooter":
+                    if bots[i].time_to_shot < 0:
+                        bullet.append(SimpleShot(bots[i].coords_enemy[0], bots[i].coords_enemy[1], bots[i]))
+                        bots[i].time_to_shot = TIME_TO_SHOT_SHOOTER
+                    else:
+                        bots[i].time_to_shot -= 1/FPS
+                if bots[i].type == "kamikaze":
+                    if bots[i].time_to_shot < 0:
+
+                        
+
+                        bots[i].health = 0
+                    else:
+                        bots[i].time_to_shot -= 1/FPS
 
 #update
     for i in range(len(bullet) - 1, -1, -1):
