@@ -29,22 +29,14 @@ class Staticobjects(): # лучше вместо create везде пропис�
                 return 100 # если выводиться 100 это значит что нет столкновения, для других чисел выводится значение угла
                            # поворота объекта относительно игрока
         if self.type == 2: # ящик
-            if math.hypot((gamer.x - self.x), (gamer.y - self.y)) <= (math.sqrt(4.5 / math.pi) * self.r + gamer.r):
-                if self.x == gamer.x:
-                    if gamer.y < self.y:
-                        return 0.5 * math.pi
-                    else:
-                        return -0.5 * math.pi
-                elif self.y == gamer.y:
-                    if gamer.x < self.x:
-                        return 0
-                    else:
-                        return -math.pi
-                else:
-                    return math.atan((self.y - gamer.y) / (self.x - gamer.x))
+
+            l = math.hypot((self.x - gamer.x), (self.y - gamer.y))
+            x_a = abs(l - gamer.x) / math.sqrt(1 + (((self.x - gamer.x) / (self.y - gamer.y)) ** 2))
+            y_a = abs(l - gamer.x) / math.sqrt(1 + (((self.y - gamer.y) / (self.x - gamer.x)) ** 2))
+            if x_a ** 6 + y_a ** 6 <= (4 / math.pi) * (self.r ** 6):
+                return math.atan((self.y - gamer.y) / (self.x - gamer.x))
             else:
-                return 100 # если выводиться 100 это значит что нет столкновения, для других чисел выводится значение угла
-                           # поворота объекта относительно игрока
+                return 100
 
     def collision_with_fighter(self, event, obj): # применять в том случае, когда angle != 100
         pygame.event.get()
