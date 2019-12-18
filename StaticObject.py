@@ -106,14 +106,18 @@ class Box(Staticobjects, pygame.sprite.Sprite):
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
                 bottomright=((self.x + self.r), (self.y + self.r)))
         if self.interior_stuff == 3:
-            self.object_in_the_box = pygame.image.load('Bullet1.png')
+            self.object_in_the_box = pygame.image.load('aid.png')
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
                 bottomright=((self.x + self.r), (self.y + self.r)))
         if self.interior_stuff == 4:
-            self.object_in_the_box = pygame.image.load('Bullet2.png')
+            self.object_in_the_box = pygame.image.load('Bullet1.png')
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
                 bottomright=((self.x + self.r), (self.y + self.r)))
         if self.interior_stuff == 5:
+            self.object_in_the_box = pygame.image.load('Bullet2.png')
+            self.object_in_the_box_rect = self.object_in_the_box.get_rect(
+                bottomright=((self.x + self.r), (self.y + self.r)))
+        if self.interior_stuff == 6:
             self.object_in_the_box = pygame.image.load('Bullet3.png')
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
                 bottomright=((self.x + self.r), (self.y + self.r)))
@@ -151,7 +155,7 @@ class Stone(Staticobjects):
 
 
     def create_stone(self, sc):
-        pygame.draw.circle(sc, (229, 217, 224), [int(self.x), int(self.y)], int(self.r))
+        pygame.draw.circle(sc, (0, 0, 0), [int(self.x), int(self.y)], int(self.r))
 
     def collision_with_fighter(self): # применять в том случае, когда angle != 100
         # pygame.event.get()
