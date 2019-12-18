@@ -91,7 +91,7 @@ class Tree(Staticobjects, pygame.sprite.Sprite):
         self.image = pygame.image.load('bush.png').convert()
         self.image.set_colorkey((225, 225, 225))
         self.rect = self.image.get_rect(center=(x, y))
-        self.r = self.rect.width * 0.5
+        self.r = 256
 
     def create_tree(self, sc): # создание дерева или куста, для каждого объекта будет отдельная функция создания
         pygame.draw.circle(sc, (255, 255, 255), [self.x, self.y], self.r_interior) # рисует ствол
@@ -115,7 +115,7 @@ class Box(Staticobjects, pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('box.png').convert()
         self.rect = self.image.get_rect(center=(x, y))
-        self.r = self.rect.width * 0.5
+        self.r = 128
         if self.interior_stuff == 1:
             self.object_in_the_box = pygame.image.load('gun.png')
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
