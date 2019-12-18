@@ -31,9 +31,9 @@ class Staticobjects(): # лучше вместо create везде пропис�
         if self.type == 2: # ящик
 
             l = math.hypot((self.x - gamer.x), (self.y - gamer.y))
-            x_a = abs(l - gamer.x) / math.sqrt(1 + (((self.x - gamer.x) / (self.y - gamer.y)) ** 2))
-            y_a = abs(l - gamer.x) / math.sqrt(1 + (((self.y - gamer.y) / (self.x - gamer.x)) ** 2))
-            if x_a ** 6 + y_a ** 6 <= (4 / math.pi) * (self.r ** 6):
+            x_a = abs(l - gamer.r) / math.sqrt(1 + (((self.x - gamer.x) / (self.y - gamer.y)) ** 2))
+            y_a = abs(l - gamer.r) / math.sqrt(1 + (((self.y - gamer.y) / (self.x - gamer.x)) ** 2))
+            if x_a ** 6 + y_a ** 12 <= (3.6 / math.pi) * (self.r ** 12):
                 return math.atan((self.y - gamer.y) / (self.x - gamer.x))
             else:
                 return 100
@@ -57,7 +57,8 @@ class Tree(Staticobjects, pygame.sprite.Sprite):
         self.r_interior = r_interior # радиус ствола
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load('tree.png').convert()
-        self.image.set_colorkey((225, 225, 225))
+        self.image.set_colorkey((255, 255, 255))
+        self.image.set_colorkey((238, 238, 238))
         self.rect = self.image.get_rect()
         self.r = self.rect.width * 0.5
         self.rect.x = self.x - self.r
@@ -140,7 +141,7 @@ class Stone(Staticobjects):
 
 
     def create_stone(self, sc):
-        pygame.draw.circle(sc, (0, 0, 0), [int(self.x), int(self.y)], self.r)
+        pygame.draw.circle(sc, (0, 0, 0), [self.x, self.y], self.r)
 
     def collision_with_fighter(self, event): # применять в том случае, когда angle != 100
         pygame.event.get()
@@ -151,8 +152,5 @@ class Stone(Staticobjects):
                     self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.5), (self.r * 0.5))
                 else:
                     return 0 # это значит что надо перестать рисовать камень
-
-
-
 
 
