@@ -90,6 +90,11 @@ class BulletWithoutGun(Bullet):
         self.speed = self.direction.mult_by_scalar(self.speed_step)
         self.bounds = None
 
+    def draw(self, surface):
+        if self.live:
+            pygame.draw.circle(surface, self.color, (int(self.x), int(self.y)), int(self.r))
+
+
 class SimpleShot(Bullet):
     def __init__(self, target_x, target_y, player):
         super().__init__(target_x, target_y, player)

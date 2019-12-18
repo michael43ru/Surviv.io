@@ -147,11 +147,11 @@ while running:
                         n = 10
                         for s in range(n):
                             bullet.append(BulletWithoutGun(bots[i].hands[0].x + bots[i].target_vector.turn(s * (360 / n)).x,
-                                                     bots[i].hands[0].y + bots[i].target_vector.turn(s * (360 / n)).y,
-                                                     bots[i].hands[0]))
+                                                           bots[i].hands[0].y + bots[i].target_vector.turn(s * (360 / n)).y,
+                                                           bots[i].hands[0]))
                             bullet.append(BulletWithoutGun(bots[i].hands[1].x + bots[i].target_vector.turn(s * (360 / n)).x,
-                                                     bots[i].hands[1].y + bots[i].target_vector.turn(s * (360 / n)).y,
-                                                     bots[i].hands[1]))
+                                                           bots[i].hands[1].y + bots[i].target_vector.turn(s * (360 / n)).y,
+                                                           bots[i].hands[1]))
 
                         bots[i].health = 0
                     else:
