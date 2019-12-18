@@ -56,7 +56,7 @@ class Tree(Staticobjects, pygame.sprite.Sprite):
         Staticobjects.__init__(self, x, y, r, number_of_type)
         self.r_interior = r_interior # радиус ствола
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('bush.png').convert()
+        self.image = pygame.image.load('tree.png').convert()
         self.image.set_colorkey((225, 225, 225))
         self.rect = self.image.get_rect()
         self.r = self.rect.width * 0.5
@@ -140,7 +140,7 @@ class Stone(Staticobjects):
 
 
     def create_stone(self, sc):
-        pygame.draw.circle(sc, (0, 0, 0), [self.x, self.y], self.r)
+        pygame.draw.circle(sc, (0, 0, 0), [int(self.x), int(self.y)], self.r)
 
     def collision_with_fighter(self, event): # применять в том случае, когда angle != 100
         pygame.event.get()
