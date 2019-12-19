@@ -166,7 +166,7 @@ class Stone(Staticobjects):
 
 
     def create_stone(self, sc):
-        pygame.draw.circle(sc, (0, 0, 0), [int(self.x), int(self.y)], int(self.r))
+        pygame.draw.circle(sc, (204, 204, 204), [int(self.x), int(self.y)], int(self.r))
 
     def collision_with_fighter(self): # применять в том случае, когда angle != 100
         # pygame.event.get()

@@ -304,6 +304,9 @@ class Player(Heroes):
         #FIXME: работает только для игроков с цветом COLOR
         self.array_color[1] -= COLOR[1] / HEALTH_PLAYER
         self.array_color[2] -= COLOR[2] / HEALTH_PLAYER
+        for i in range(3):
+            if self.array_color[i] < 0:
+                self.array_color[i] = 0
         self.color = (self.array_color[0], self.array_color[1], self.array_color[2])
 
     def draw(self, surface):
@@ -383,6 +386,9 @@ class Kamikaze(Bots):
         #FIXME: работает только для игроков с цветом COLOR
         self.array_color[1] -= COLOR[1] / HEALTH_BOTS
         self.array_color[2] -= COLOR[2] / HEALTH_BOTS
+        for i in range(3):
+            if self.array_color[i] < 0:
+                self.array_color[i] = 0
         self.color = (self.array_color[0], self.array_color[1], self.array_color[2])
 
 
@@ -398,6 +404,9 @@ class Shooter(Bots):
         #FIXME: работает только для игроков с цветом COLOR
         self.array_color[1] -= COLOR[1] / HEALTH_BOTS
         self.array_color[2] -= COLOR[2] / HEALTH_BOTS
+        for i in range(3):
+            if self.array_color[i] < 0:
+                self.array_color[i] = 0
         self.color = (self.array_color[0], self.array_color[1], self.array_color[2])
 
     def get_enemy(self, enemy):

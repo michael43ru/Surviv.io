@@ -3,15 +3,18 @@ import math
 
 
 class Red_zone:
-    def __init__(self, x, y , r, sc):
+    def __init__(self, x, y , r, s, sc):
         self.x = x
         self.y = y
         self.r = r
-        self.v = 0.3
+        self.v = s / 2000
 
     def draw(self, sc):
         self.image = pygame.draw.circle(sc, (100, 0, 0), (int(self.x), int(self.y)), int(self.r), 10)
 
     def hit(self, obj):
         if math.hypot((self.x - obj.x), (self.y - obj.y)) >= self.r:
-            obj.health -= 0.015
+            obj.health -= 0.075
+            return 0
+        
+
