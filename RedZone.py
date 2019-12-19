@@ -10,7 +10,7 @@ class Red_zone:
         self.v = 5
 
     def draw(self, sc):
-        self.image = pygame.draw.circle(sc, (100, 0, 0), (int(self.x), int(self.y)), self.r, 10)
+        self.image = pygame.draw.circle(sc, (100, 0, 0), (self.x, self.y), int(self.r), 10)
 
     def hit(self, obj):
         if math.hypot((self.x - obj.x), (self.y - obj.y)) <= self.r:
