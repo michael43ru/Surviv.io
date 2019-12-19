@@ -14,4 +14,4 @@ class Red_zone:
 
     def hit(self, obj):
         if math.hypot((self.x - obj.x), (self.y - obj.y)) <= self.r:
-            obj.health -= 0.5
+            obj.health -= 0.015
