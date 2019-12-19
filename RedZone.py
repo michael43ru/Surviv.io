@@ -9,7 +9,7 @@ class Red_zone:
         self.r = r
         self.v = 5
 
-    def draw(self):
+    def draw(self, sc):
         self.image = pygame.draw.circle(sc, (100, 0, 0), (self.x, self.y), self.r, 10)
 
     def hit(self, obj):
