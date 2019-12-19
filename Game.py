@@ -31,7 +31,7 @@ class Game:
         self.width = 800
         self.height = 600
         self.fps = 30
-        self.len = 10000 # сторона карты
+        self.len = 2000 # сторона карты
         self.speed = 20
 
         self.center_x = rnd(0.03 * self.len, 0.97 * self.len) # координаты игрока в мире
@@ -110,20 +110,22 @@ class Game:
         player.x -= player.speed.x
         player.y -= player.speed.y
 
+        zone.x -= player.speed.x
+        zone.y -= player.speed.y
+
         self.center_x += player.speed.x
         self.center_y += player.speed.y
 
-
     def spawn(self):
 
-        for i in range(3, 99, 10):
-            for j in range(3, 99, 10):
+        for i in range(3, 9, 1):
+            for j in range(3, 9, 1):
                 k = rnd(0, 4)
-                r = rnd(49, 50)
-                x = rnd(int(i * self.len / 100 + r * 0.75),
-                        int((i + 1) * self.len // 100 - r * 0.75))
-                y = rnd(int(j * self.len / 100 + r * 0.75),
-                        int((j + 1) * self.len // 100 - r * 0.75))
+                r = rnd(50, 51)
+                x = rnd(int(i * self.len / 10 + r * 0.75),
+                        int((i + 1) * self.len // 10 - r * 0.75))
+                y = rnd(int(j * self.len / 10 + r * 0.75),
+                        int((j + 1) * self.len // 10 - r * 0.75))
 
                 if k == 1: # Tree
                     obj = Tree(x - self.center_x, y - self.center_y, r, 1)
@@ -131,7 +133,7 @@ class Game:
                     # obj.r = obj.r_interior
                                
                 if k == 2: # Box
-                    stuff = rnd(1, 3)
+                    stuff = rnd(2, 7)
                     obj = Box(x - self.center_x, y - self.center_y, r, 2, black, stuff)
                     self.boxes.append(obj)
 
@@ -168,6 +170,10 @@ class Game:
         for line in lines_y:
             line.draw(self.sc)
 
+        player.draw(self.sc)
+        for obj in self.bots:
+            obj.draw(self.sc)
+
         for obj in self.boxes:
             obj.create_box(self.sc)
 
@@ -177,10 +183,8 @@ class Game:
         for obj in self.stones:
             obj.create_stone(self.sc)
 
-        for obj in self.bots:
+        for obj in self.bullets:
             obj.draw(self.sc)
-            
-        player.draw(self.sc)
         
 
 
@@ -200,9 +204,33 @@ class Game:
                             self.delete.append(stone)
                     for box in self.boxes:
                         if math.hypot((player.x - box.x), (player.y - box.y)) <= 2 * (box.r + player.r) and (
-                            box.collision_with_fighter() == 0):
+                            box.r > 0) and box.collision_with_fighter() == 0:
                             box.r = 0
                             box.image = box.object_in_the_box
+                        elif math.hypot((player.x - box.x), (player.y - box.y)) <= 2 * (box.r + player.r) and (
+                            box.r == 0) and box.get_stuff() == 0:
+                            self.delete.append(box)
+                            if box.interior_stuff == 1:
+                                player.gun_in_hands = True
+                            if box.interior_stuff == 2:
+                                player.bag.heart += 1
+                            if box.interior_stuff == 3:
+                                player.bag.aid += 1
+                            if box.interior_stuff == 4:
+                                player.gun_in_hands = True
+                                player.bag.bullet_type = 'simple'
+                                player.bag.bullets_number = 50
+                            if box.interior_stuff == 5:
+                                player.gun_in_hands = True
+                                player.bag.bullet_type = 'line'
+                                player.bag.bullets_number = 50
+                            if box.interior_stuff == 6:
+                                player.gun_in_hands = True
+                                player.bag.bullet_type = 'divergent'
+                                player.bag.bullets_number = 50
+                                
+                            
+                    
                 if event.button == 1:
                     (coord_x, coord_y) = pygame.mouse.get_pos()
                     #Добавляем при тройном и дивергированном выстреле каждую пульку отдельно!
@@ -211,15 +239,15 @@ class Game:
                     #и вводится локальная переменная, которая после каждой итерации уничтожается
                     if player.gun_in_hands and player.bag.bullets_number > 0:
                         if player.bag.bullet_type == "simple":
-                            bullet.append(SimpleShot(coord_x, coord_y, player))
+                            self.bullets.append(SimpleShot(coord_x, coord_y, player))
                         elif player.bag.bullet_type == "divergent":
                             bullet_not_used = DivergentShot(coord_x, coord_y, player)
                             for i in range(bullet_not_used.n):
-                                bullet.append(bullet_not_used.array[i])
+                                self.bullets.append(bullet_not_used.array[i])
                         elif player.bag.bullet_type == "line":
                             bullet_not_used = TripleShot(coord_x, coord_y, player)
                             for i in range(bullet_not_used.n):
-                                bullet.append(bullet_not_used.array[i])
+                                self.bullets.append(bullet_not_used.array[i])
                         player.bag.bullets_number -= 1
                     else:
                         print("НЕВОЗМОЖНО СТРЕЛЯТЬ!")
@@ -242,6 +270,20 @@ class Game:
                     player.speed.y += self.speed
                 if key == pygame.K_UP:
                     player.speed.y -= self.speed
+
+                if key == pygame.K_1 and player.bag.bullets_number > 0:
+                    player.gun_in_hands = True
+                if key == pygame.K_2:
+                    player.gun_in_hands = False
+                if key == pygame.K_3 and player.bag.heart > 0:
+                    player.bag.heart -= 1
+                    if player.health <= HEALTH_PLAYER - 3:
+                        player.health += 3
+                    else:
+                        player.health = HEALTH_PLAYER
+                if key == pygame.K_4 and player.bag.aid > 0:
+                    player.health = HEALTH_PLAYER
+                    player.bag.aid -= 1
 
             if event.type == pygame.KEYUP:
                 key = event.key
@@ -333,9 +375,8 @@ class Game:
                             if dynamic in self.bullets:
                                 dynamic.live = False
                                 if lst_s == self.stones:
-                                    if static.r >= 0.6:
-                                        static.r *= 0.8 # на сколько уменьшается радикс за один щелчкек
-                                        self.tree_surf = pygame.transform.scale(self.tree_surf, (self.r * 0.5), (self.r * 0.5))
+                                    if static.r >= 20:
+                                        static.r *= 0.8 # на сколько уменьшается радикс за один щелчок
                                     else:
                                         self.delete.append(static)
                                         
@@ -366,6 +407,11 @@ class Game:
             player.speed.x = 0
         if abs(player.speed.y) < 0.25:
             player.speed.y = 0
+            
+        zone.r -= zone.v
+        for her in self.heroes:
+            zone.hit(her)
+        
 
         
         for lst in self.static_objects:
@@ -373,29 +419,13 @@ class Game:
                 if obj in self.delete:
                     lst.pop(lst.index(obj))
         
-        self.sc.fill(color_water)
-        grass.draw(self.sc)
-        
-        for line in lines_x:
-            line.draw(self.sc)
-        for line in lines_y:
-            line.draw(self.sc)
-
-        player.draw(self.sc)
-        for obj in self.bots:
-            obj.draw(self.sc)
-
-        for obj in self.boxes:
-            obj.create_box(self.sc)
-
-        for obj in self.trees:
-            obj.create_tree(self.sc)
-
-        for obj in self.stones:
-            obj.create_stone(self.sc)
             
-
-        #self.draw()
+        self.draw()
+        zone.draw(self.sc)
+        
+        if player.health < 0:
+            cat = pygame.image.load('END.jpg')
+            self.sc.blit(cat, (0, 0))
         
         pygame.display.flip()
 
@@ -442,13 +472,15 @@ player.get_simple_hands()
 grass = Map(0.02 * game.len - game.center_x, 0.02 * game.len - game.center_y,
             0.96 * game.len, 0.96 * game.len, color_grass)
 
-lines_y = [0] * 101
-lines_x = [0] * 101
-for i in range(101):
-    lines_y[i] = Map(i * game.len / 100 - game.center_x, -game.center_y,
+zone = Red_zone(game.len / 2 - game.center_x, game.len / 2 - game.center_y, 2 ** 0.5 * game.len / 2, game.sc)
+
+lines_y = [0] * 11
+lines_x = [0] * 11
+for i in range(11):
+    lines_y[i] = Map(i * game.len / 10 - game.center_x, -game.center_y,
                      0.5, game.len, white)
-for i in range(101):
-    lines_x[i] = Map(-game.center_x, i * game.len / 100 - game.center_y,
+for i in range(11):
+    lines_x[i] = Map(-game.center_x, i * game.len / 10 - game.center_y,
                      game.len, 0.5, white)
 
 game.spawn()
@@ -462,4 +494,12 @@ game.bots.append(bot)'''
 while game.true:
     game.main()
 
+cat = pygame.image.load('END.jpg')
+game.sc.blit(cat, (0, 0))
+true = True
+while true == True:
+    for event in pygame.event.get():
+        # check for closing window
+        if event.type == pygame.QUIT:
+            true = False
 pygame.quit()

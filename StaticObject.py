@@ -31,12 +31,22 @@ class Staticobjects(): # лучше вместо create везде пропис�
                 return 100 # если выводиться 100 это значит что нет столкновения, для других чисел выводится значение угла
                            # поворота объекта относительно игрока
         if self.type == 2: # ящик
-
-            l = math.hypot((self.x - gamer.x), (self.y - gamer.y))
-            x_a = abs(l - gamer.r) / math.sqrt(1 + (((self.x - gamer.x) / (self.y - gamer.y)) ** 2))
-            y_a = abs(l - gamer.r) / math.sqrt(1 + (((self.y - gamer.y) / (self.x - gamer.x)) ** 2))
-            if x_a ** 12 + y_a ** 12 <= (3.6 / math.pi) * (self.r ** 12):
-                return math.atan((self.y - gamer.y) / (self.x - gamer.x))
+            if self.x == gamer.x and self.y - gamer.y <= gamer.r + self.r:
+                return math.pi / 2
+            elif self.x == gamer.x and gamer.x - self.x >= gamer.r + self.r:
+                return -math.pi / 2
+            elif self.y == gamer.y and self.x - gamer.x <= gamer.r + self.r:
+                return 0
+            elif self.y == gamer.y and gamer.x - self.x >= gamer.r + self.r:
+                return math.pi
+            elif self.x != gamer.x and self.y != gamer.y:
+                l = math.hypot((self.x - gamer.x), (self.y - gamer.y))
+                x_a = abs(l - gamer.r) / math.sqrt(1 + (((self.x - gamer.x) / (self.y - gamer.y)) ** 2))
+                y_a = abs(l - gamer.r) / math.sqrt(1 + (((self.y - gamer.y) / (self.x - gamer.x)) ** 2))
+                if x_a ** 12 + y_a ** 12 <= (3.6 / math.pi) * (self.r ** 12):
+                    return math.atan((self.y - gamer.y) / (self.x - gamer.x))
+                else:
+                    return 100
             else:
                 return 100
 
@@ -107,6 +117,7 @@ class Box(Staticobjects, pygame.sprite.Sprite):
                 bottomright=((self.x + self.r), (self.y + self.r)))
         if self.interior_stuff == 3:
             self.object_in_the_box = pygame.image.load('aid.png')
+            self.object_in_the_box.set_colorkey((0, 0, 0))
             self.object_in_the_box_rect = self.object_in_the_box.get_rect(
                 bottomright=((self.x + self.r), (self.y + self.r)))
         if self.interior_stuff == 4:
@@ -137,12 +148,12 @@ class Box(Staticobjects, pygame.sprite.Sprite):
     def create_stuff(self, sc):
         sc.blit(self.object_in_the_box, self.object_in_the_box_rect)
 
-    def get_stuff(self, event):
-        pygame.event.get()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if math.hypot((pygame.mouse.get_pos()[0] - self.x - 0.5 * self.r),
-                              (pygame.mouse.get_pos()[1] - self.y - 0.5 * self.r)) <= self.r:
+    def get_stuff(self):
+        # pygame.event.get()
+        # if event.type == pygame.MOUSEBUTTONDOWN:
+            # if event.type == pygame.MOUSEBUTTONDOWN:
+                if math.hypot((pygame.mouse.get_pos()[0] - self.x - 0.5 * 50),
+                              (pygame.mouse.get_pos()[1] - self.y - 0.5 * 50)) <= 100:
                     return 0 # начать рисовать предмет на человеке
 
     def open_box(self): # при открытии ящика уничтожить его, начать отрисовку внутреннего стаффа
